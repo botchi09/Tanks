@@ -1,9 +1,12 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Input.Touch;
 
 namespace Tanks
 {
+
+
 	/// <summary>
 	/// This is the main type for your game.
 	/// </summary>
@@ -23,6 +26,8 @@ namespace Tanks
 			graphics.SupportedOrientations = DisplayOrientation.LandscapeLeft | DisplayOrientation.LandscapeRight;
 		}
 
+		GestureDetect gestureDetect;
+
 		/// <summary>
 		/// Allows the game to perform any initialization it needs to before starting to run.
 		/// This is where it can query for any required services and load any non-graphic
@@ -32,6 +37,8 @@ namespace Tanks
 		protected override void Initialize()
 		{
 			// TODO: Add your initialization logic here
+			gestureDetect = new GestureDetect();
+			TouchPanel.EnabledGestures = GestureType.Tap | GestureType.FreeDrag | GestureType.DragComplete | GestureType.Pinch;
 
 			base.Initialize();
 		}
@@ -68,6 +75,7 @@ namespace Tanks
 				Exit();
 
 			// TODO: Add your update logic here
+			gestureDetect.getGesture(gameTime.TotalGameTime.TotalMilliseconds);
 
 			base.Update(gameTime);
 		}
