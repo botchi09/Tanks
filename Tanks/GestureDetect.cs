@@ -23,7 +23,6 @@ namespace Tanks
 		double lastUpdateTime = 0;
 		int totalDragUpdates = 0;
 		float totalVelocity = 0;
-		GestureType detectedGesture;
 
 		private void resetDrag()
 		{
@@ -35,66 +34,72 @@ namespace Tanks
 
 		}
 
-		public void getGesture(double time)
+		public DetectedGesture getGesture(double time)
 		{
-			try
+
+
+			GestureSample gs = TouchPanel.ReadGesture();
+			DetectedGesture detectedGs = new DetectedGesture();
+
+			detectedGs.Delta = gs.Delta;
+			detectedGs.Delta2 = gs.Delta2;
+			detectedGs.Position = gs.Position;
+			detectedGs.Position2 = gs.Position2;
+			detectedGs.Timestamp = gs.Timestamp;
+
+
+			switch (gs.GestureType)
 			{
-				GestureSample gs = TouchPanel.ReadGesture();
-				TouchCollection touchCol = TouchPanel.GetState();
+				case GestureType.Tap:
+					System.Diagnostics.Debug.WriteLine("Tap!");
+					break;
 
-				switch(gs.GestureType)
-				{
-					case GestureType.Tap:
-						System.Diagnostics.Debug.WriteLine("Tap!");
-						break;
+				case GestureType.FreeDrag:
+					isDragging = true;
+					totalVelocity += gs.Delta.LengthSquared(); //LengthSquared is more efficient than Length
 
-					case GestureType.FreeDrag:
-						isDragging = true;
-						totalVelocity += gs.Delta.LengthSquared(); //LengthSquared is more efficient than Length
+					//Test every 150ms to see if velocity warrants a flick, or a drag.
+					if (lastUpdateTime + 150 <= time) //150ms update
+					{
+						totalDragUpdates += 1;
+						lastUpdateTime = time;
+						System.Diagnostics.Debug.WriteLine("Incrementing counter to " + totalDragUpdates);
 
-						//Test every 150ms to see if velocity warrants a flick, or a drag.
-						if (lastUpdateTime + 150 <= time) //150ms update
-						{
-							totalDragUpdates += 1;
-							lastUpdateTime = time;
-							System.Diagnostics.Debug.WriteLine("Incrementing counter to " + totalDragUpdates);
+					}
 
-						}
+					if (totalDragUpdates > 1) //User has spent more than 150ms dragging. Assume user means to Drag and draw accordingly.
+					{
 
-						if (totalDragUpdates > 1) //User has spent more than 150ms dragging. Assume user means to Drag and draw accordingly.
-						{
-							detectedGesture = GestureType.FreeDrag;
-						}
+						detectedGs.GestureType = GestureType.FreeDrag;
+						return detectedGs;
+					}
 
-						break;
+					break;
 
-					case GestureType.DragComplete:
-						System.Diagnostics.Debug.WriteLine("Drag complete");
+				case GestureType.DragComplete:
+					System.Diagnostics.Debug.WriteLine("Drag complete");
 
-						if (totalDragUpdates > 1)
-						{
-							System.Diagnostics.Debug.WriteLine("Free drag detected.");
-						}
-						else
-						{
-							System.Diagnostics.Debug.WriteLine("Flick detected");
-						}
+					if (totalDragUpdates > 1)
+					{
+						System.Diagnostics.Debug.WriteLine("Free drag detected.");
 
-						resetDrag();
-						break;
+						detectedGs.GestureType = GestureType.DragComplete;
+						return detectedGs;
+					}
+					else
+					{
+						System.Diagnostics.Debug.WriteLine("Flick detected");
 
-					default:
-						resetDrag();
-						break;
-				}
+						detectedGs.GestureType = GestureType.Flick;
+						return detectedGs;
+					}
 
+				default:
+					resetDrag();
+					break;
 			}
-			catch
-			{
-				//System.Diagnostics.Debug.WriteLine("No input");
-			}
+
+			return GestureType.None;
 		}
-
 	}
 }
- 
