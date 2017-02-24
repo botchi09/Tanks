@@ -75,9 +75,9 @@ namespace Tanks
 				Exit();
 
 			// TODO: Add your update logic here
-			GestureType detectedGesture = gestureDetect.getGesture(gameTime.TotalGameTime.TotalMilliseconds);
+			DetectedGesture detectedGesture = gestureDetect.getGesture(gameTime.TotalGameTime.TotalMilliseconds);
 			
-			if (detectedGesture != GestureType.None)
+			if (detectedGesture.GestureType != GestureType.None)
 			{
 
 			}

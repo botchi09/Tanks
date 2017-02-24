@@ -99,7 +99,8 @@ namespace Tanks
 					break;
 			}
 
-			return GestureType.None;
+			detectedGs.GestureType = GestureType.None;
+			return detectedGs;
 		}
 	}
 }
