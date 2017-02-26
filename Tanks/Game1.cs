@@ -14,6 +14,8 @@ namespace Tanks
 	{
 		GraphicsDeviceManager graphics;
 		SpriteBatch spriteBatch;
+		private SpriteFont font;
+
 
 		public Game1()
 		{
@@ -27,6 +29,7 @@ namespace Tanks
 		}
 
 		GestureDetect gestureDetect;
+		private string gestureStateString = "No gesture yet...";
 
 		/// <summary>
 		/// Allows the game to perform any initialization it needs to before starting to run.
@@ -53,6 +56,8 @@ namespace Tanks
 			spriteBatch = new SpriteBatch(GraphicsDevice);
 
 			// TODO: use this.Content to load your game content here
+			font = this.Content.Load<SpriteFont>("TanksBodyFont");
+
 		}
 
 		/// <summary>
@@ -79,7 +84,28 @@ namespace Tanks
 			
 			if (detectedGesture.GestureType != GestureType.None)
 			{
-
+				switch(detectedGesture.GestureType)
+				{
+					case GestureType.Tap:
+						gestureStateString = "Tap!";
+						break;
+					case GestureType.Flick:
+						gestureStateString = "Flick!";
+						break;
+					case GestureType.FreeDrag:
+						gestureStateString = "Dragging...";
+						break;
+					case GestureType.DragComplete:
+						gestureStateString = "Drag!";
+						break;
+					case GestureType.Pinch:
+						gestureStateString = "Pinching...";
+						break;
+				}
+			}
+			else
+			{
+				//gestureStateString = "No gesture detected.";
 			}
 
 			base.Update(gameTime);
@@ -94,6 +120,11 @@ namespace Tanks
 			GraphicsDevice.Clear(Color.CornflowerBlue);
 
 			// TODO: Add your drawing code here
+			spriteBatch.Begin();
+
+			spriteBatch.DrawString(font, gestureStateString, new Vector2(300, 300), Color.Black);
+
+			spriteBatch.End();
 
 			base.Draw(gameTime);
 		}

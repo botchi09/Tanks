@@ -19,88 +19,103 @@ namespace Tanks
 		 * Ref: http://stackoverflow.com/a/15155929
 		 */
 
-		bool isDragging = false;
-		double lastUpdateTime = 0;
-		int totalDragUpdates = 0;
-		float totalVelocity = 0;
+		private double lastUpdateTime = 0;
+		private int totalDragUpdates = 0;
+		private float lastDeltaSquared = 0;
 
-		private void resetDrag()
+		private void resetDrag(double time)
 		{
-			isDragging = false;
-			totalVelocity = 0;
 			totalDragUpdates = 0;
-			lastUpdateTime = 0;
-			System.Diagnostics.Debug.WriteLine("Resetting variables");
+			lastUpdateTime = time; //So drawings in quick succession aren't interpreted as flicks
+			lastDeltaSquared = 0;
+
+			//System.Diagnostics.Debug.WriteLine("Resetting variables");
 
 		}
 
 		public DetectedGesture getGesture(double time)
 		{
-
-
-			GestureSample gs = TouchPanel.ReadGesture();
 			DetectedGesture detectedGs = new DetectedGesture();
-
-			detectedGs.Delta = gs.Delta;
-			detectedGs.Delta2 = gs.Delta2;
-			detectedGs.Position = gs.Position;
-			detectedGs.Position2 = gs.Position2;
-			detectedGs.Timestamp = gs.Timestamp;
-
-
-			switch (gs.GestureType)
+			if (TouchPanel.IsGestureAvailable)
 			{
-				case GestureType.Tap:
-					System.Diagnostics.Debug.WriteLine("Tap!");
-					break;
+				//If uncaught, Queue Empty exception when no input occurs
+				GestureSample gs = TouchPanel.ReadGesture();
 
-				case GestureType.FreeDrag:
-					isDragging = true;
-					totalVelocity += gs.Delta.LengthSquared(); //LengthSquared is more efficient than Length
+				detectedGs.Delta = gs.Delta;
+				detectedGs.Delta2 = gs.Delta2;
+				detectedGs.Position = gs.Position;
+				detectedGs.Position2 = gs.Position2;
+				detectedGs.Timestamp = gs.Timestamp;
 
-					//Test every 150ms to see if velocity warrants a flick, or a drag.
-					if (lastUpdateTime + 150 <= time) //150ms update
-					{
-						totalDragUpdates += 1;
-						lastUpdateTime = time;
-						System.Diagnostics.Debug.WriteLine("Incrementing counter to " + totalDragUpdates);
 
-					}
+				switch (gs.GestureType)
+				{
+					case GestureType.Tap:
+						System.Diagnostics.Debug.WriteLine("Tap!");
 
-					if (totalDragUpdates > 1) //User has spent more than 150ms dragging. Assume user means to Drag and draw accordingly.
-					{
-
-						detectedGs.GestureType = GestureType.FreeDrag;
+						detectedGs.GestureType = GestureType.Tap;
 						return detectedGs;
-					}
 
-					break;
+					case GestureType.Pinch:
+						System.Diagnostics.Debug.WriteLine("Pinch!");
 
-				case GestureType.DragComplete:
-					System.Diagnostics.Debug.WriteLine("Drag complete");
-
-					if (totalDragUpdates > 1)
-					{
-						System.Diagnostics.Debug.WriteLine("Free drag detected.");
-
-						detectedGs.GestureType = GestureType.DragComplete;
+						detectedGs.GestureType = GestureType.Pinch;
 						return detectedGs;
-					}
-					else
-					{
-						System.Diagnostics.Debug.WriteLine("Flick detected");
 
-						detectedGs.GestureType = GestureType.Flick;
-						return detectedGs;
-					}
+					case GestureType.FreeDrag:
+						lastDeltaSquared = gs.Delta.LengthSquared();
 
-				default:
-					resetDrag();
-					break;
+
+						//Test every 150ms to see if velocity warrants a flick, or a drag.
+						if (lastUpdateTime + 150 <= time) //150ms update
+						{
+							totalDragUpdates += 1;
+							lastUpdateTime = time;
+							System.Diagnostics.Debug.WriteLine("Incrementing counter to " + totalDragUpdates);
+
+						}
+
+						if (totalDragUpdates > 1) //User has spent more than 150ms dragging. Assume user means to Drag and draw accordingly.
+						{
+							detectedGs.GestureType = GestureType.FreeDrag;
+							return detectedGs;
+						}
+
+						break;
+
+					case GestureType.DragComplete:
+						System.Diagnostics.Debug.WriteLine("Drag complete");
+						System.Diagnostics.Debug.WriteLine(lastDeltaSquared);
+
+						if (totalDragUpdates > 1)
+						{
+							System.Diagnostics.Debug.WriteLine("Free drag detected.");
+
+							detectedGs.GestureType = GestureType.DragComplete;
+							resetDrag(time);
+							return detectedGs;
+						}
+						else
+						{
+							System.Diagnostics.Debug.WriteLine("Flick detected");
+
+							detectedGs.GestureType = GestureType.Flick;
+							resetDrag(time);
+							return detectedGs;
+						}
+
+					default:
+						break;
+				}
+
+				detectedGs.GestureType = GestureType.None;
+				return detectedGs;
 			}
-
-			detectedGs.GestureType = GestureType.None;
-			return detectedGs;
+			else
+			{
+				detectedGs.GestureType = GestureType.None;
+				return detectedGs;
+			}
 		}
 	}
 }

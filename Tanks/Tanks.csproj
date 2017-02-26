@@ -60,6 +60,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Activity1.cs" />
+    <Compile Include="DetectedGesture.cs" />
     <Compile Include="Game1.cs" />
     <Compile Include="GestureDetect.cs" />
     <Compile Include="Resources\Resource.Designer.cs" />
