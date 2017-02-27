@@ -16,19 +16,19 @@ namespace Tanks
 {
 	class Line
 	{
-		private LinkedList<Vector2> points;
+		private List<Vector2> points;
 
 		public Line()
 		{
-			points = new LinkedList<Vector2>();
+			points = new List<Vector2>();
 		}
 
-		private void addPoint(Vector2 newPoint)
+		public void addPoint(Vector2 newPoint)
 		{
-			points.AddLast(newPoint);
+			points.Add(newPoint);
 		}
 
-		private LinkedList<Vector2> getPoints()
+		public List<Vector2> getPoints()
 		{
 			return points;
 		}
@@ -46,9 +46,13 @@ namespace Tanks
 		public void drawLines(Texture2D lineTexture, SpriteBatch spriteBatch)
 		{
 			spriteBatch.Begin();
-			DrawLine(spriteBatch, lineTexture, new Vector2(20, 20), new Vector2(120, 120));
-			DrawLine(spriteBatch, lineTexture, new Vector2(120, 20), new Vector2(220, 60));
-			DrawLine(spriteBatch, lineTexture, new Vector2(20, 240), new Vector2(220, 100));
+
+
+			//Begin at one as we must ignore the first point in order to connect lines between 2 vectors
+			for (var i = 1; i < points.Count; i++)
+			{
+				DrawLine(spriteBatch, lineTexture, points[i-1], points[i]);
+			}
 			spriteBatch.End();
 		}
 	}

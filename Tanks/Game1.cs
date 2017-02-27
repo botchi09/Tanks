@@ -36,6 +36,9 @@ namespace Tanks
 		{
 			// TODO: Add your initialization logic here
 			line = new Line();
+			line.addPoint(new Vector2(100, 200));
+			line.addPoint(new Vector2(200, 100));
+			line.addPoint(new Vector2(300, 300));
 
 			base.Initialize();
 		}
