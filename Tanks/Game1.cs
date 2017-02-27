@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System.Collections.Generic;
 
 namespace Tanks
 {
@@ -11,6 +12,7 @@ namespace Tanks
 	{
 		GraphicsDeviceManager graphics;
 		SpriteBatch spriteBatch;
+		Line line;
 
 		public Game1()
 		{
@@ -81,6 +83,7 @@ namespace Tanks
 			GraphicsDevice.Clear(Color.CornflowerBlue);
 
 			// TODO: Add your drawing code here
+
 
 			base.Draw(gameTime);
 		}
