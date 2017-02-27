@@ -13,6 +13,7 @@ namespace Tanks
 		GraphicsDeviceManager graphics;
 		SpriteBatch spriteBatch;
 		Line line;
+		Texture2D lineTexture;
 
 		public Game1()
 		{
@@ -34,6 +35,7 @@ namespace Tanks
 		protected override void Initialize()
 		{
 			// TODO: Add your initialization logic here
+			line = new Line();
 
 			base.Initialize();
 		}
@@ -46,6 +48,7 @@ namespace Tanks
 		{
 			// Create a new SpriteBatch, which can be used to draw textures.
 			spriteBatch = new SpriteBatch(GraphicsDevice);
+			lineTexture = this.Content.Load<Texture2D>("LineTexture");
 
 			// TODO: use this.Content to load your game content here
 		}
@@ -83,7 +86,7 @@ namespace Tanks
 			GraphicsDevice.Clear(Color.CornflowerBlue);
 
 			// TODO: Add your drawing code here
-
+			line.drawLines(lineTexture, spriteBatch);
 
 			base.Draw(gameTime);
 		}
