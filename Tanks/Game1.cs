@@ -41,7 +41,7 @@ namespace Tanks
 		{
 			// TODO: Add your initialization logic here
 			gestureDetect = new GestureDetect();
-			TouchPanel.EnabledGestures = GestureType.Tap | GestureType.FreeDrag | GestureType.DragComplete | GestureType.Pinch;
+			TouchPanel.EnabledGestures = GestureType.Tap | GestureType.FreeDrag | GestureType.DragComplete | GestureType.Pinch | GestureType.PinchComplete;
 
 			base.Initialize();
 		}
@@ -96,10 +96,14 @@ namespace Tanks
 						gestureStateString = "Dragging...";
 						break;
 					case GestureType.DragComplete:
-						gestureStateString = "Drag!";
+						gestureStateString = "Drag complete!";
 						break;
 					case GestureType.Pinch:
 						gestureStateString = "Pinching...";
+						break;
+					case GestureType.PinchComplete:
+						//Fix issue where pinchcomplete detected as flick
+						gestureStateString = "Pinch complete!";
 						break;
 				}
 			}
