@@ -77,7 +77,6 @@ namespace Tanks
 						return detectedGs;
 
 					case GestureType.FreeDrag:
-						System.Diagnostics.Debug.WriteLine("DRAG!");
 
 
 						//Test every updateIntervalMs to see if velocity warrants a flick, or a drag.
