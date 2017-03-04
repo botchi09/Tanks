@@ -15,6 +15,9 @@ namespace Tanks
 		GraphicsDeviceManager graphics;
 		SpriteBatch spriteBatch;
 		private SpriteFont font;
+		private Line tankFollowLine;
+		Texture2D lineTexture;
+
 
 
 		public Game1()
@@ -43,6 +46,8 @@ namespace Tanks
 			gestureDetect = new GestureDetect();
 			TouchPanel.EnabledGestures = GestureType.Tap | GestureType.FreeDrag | GestureType.DragComplete | GestureType.Pinch | GestureType.PinchComplete;
 
+			tankFollowLine = new Tanks.Line();
+
 			base.Initialize();
 		}
 
@@ -57,6 +62,8 @@ namespace Tanks
 
 			// TODO: use this.Content to load your game content here
 			font = this.Content.Load<SpriteFont>("TanksBodyFont");
+			lineTexture = this.Content.Load<Texture2D>("LineTexture");
+
 
 		}
 
@@ -88,12 +95,20 @@ namespace Tanks
 				{
 					case GestureType.Tap:
 						gestureStateString = "Tap!";
+						tankFollowLine = new Line(); //Clear the line on tap
 						break;
 					case GestureType.Flick:
 						gestureStateString = "Flick!";
 						break;
 					case GestureType.FreeDrag:
 						gestureStateString = "Dragging...";
+						if (detectedGesture.firstDetection)
+						{
+							tankFollowLine.addPoint(detectedGesture.firstDetectedGesture.Position);
+
+						}
+						tankFollowLine.addPoint(detectedGesture.Position);
+
 						break;
 					case GestureType.DragComplete:
 						gestureStateString = "Drag complete!";
@@ -124,6 +139,8 @@ namespace Tanks
 			GraphicsDevice.Clear(Color.CornflowerBlue);
 
 			// TODO: Add your drawing code here
+			tankFollowLine.drawLines(lineTexture, spriteBatch);
+
 			spriteBatch.Begin();
 
 			spriteBatch.DrawString(font, gestureStateString, new Vector2(300, 300), Color.Black);

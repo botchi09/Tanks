@@ -19,15 +19,23 @@ namespace Tanks
 		 * Ref: http://stackoverflow.com/a/15155929
 		 */
 
+		private int dragIntervalThreshold = 1; //How many ticks to detect a drag
+		private int updateIntervalMs = 30;
+
 		private double lastUpdateTime = 0;
 		private int totalDragUpdates = 0;
 		private float lastDeltaSquared = 0;
+		private DetectedGesture lastDetectedGesture;
+		private bool isDragging = false;
+		private bool firstTimeDrag = false;
 
 		private void resetDrag(double time)
 		{
 			totalDragUpdates = 0;
 			lastUpdateTime = time; //So drawings in quick succession aren't interpreted as flicks
 			lastDeltaSquared = 0;
+			isDragging = false;
+			firstTimeDrag = false;
 
 			//System.Diagnostics.Debug.WriteLine("Resetting variables");
 
@@ -69,21 +77,33 @@ namespace Tanks
 						return detectedGs;
 
 					case GestureType.FreeDrag:
-						lastDeltaSquared = gs.Delta.LengthSquared();
+						System.Diagnostics.Debug.WriteLine("DRAG!");
 
 
-						//Test every 150ms to see if velocity warrants a flick, or a drag.
-						if (lastUpdateTime + 150 <= time) //150ms update
+						//Test every updateIntervalMs to see if velocity warrants a flick, or a drag.
+						if (lastUpdateTime + updateIntervalMs <= time)
 						{
+							if (isDragging == false)
+							{
+								firstTimeDrag = true;
+							}
+							isDragging = true;
 							totalDragUpdates += 1;
 							lastUpdateTime = time;
 							System.Diagnostics.Debug.WriteLine("Incrementing counter to " + totalDragUpdates);
 
 						}
 
-						if (totalDragUpdates > 1) //User has spent more than 150ms dragging. Assume user means to Drag and draw accordingly.
+						if (totalDragUpdates > dragIntervalThreshold) //User has spent more than 150ms dragging. Assume user means to Drag and draw accordingly.
 						{
 							detectedGs.GestureType = GestureType.FreeDrag;
+							if (firstTimeDrag)
+							{
+								detectedGs.firstDetection = true;
+								detectedGs.firstDetectedGesture = lastDetectedGesture;
+								firstTimeDrag = false;
+								System.Diagnostics.Debug.WriteLine("First time drag detected...");
+							}
 							return detectedGs;
 						}
 
@@ -93,7 +113,7 @@ namespace Tanks
 						System.Diagnostics.Debug.WriteLine("Drag complete");
 						System.Diagnostics.Debug.WriteLine(lastDeltaSquared);
 
-						if (totalDragUpdates > 1)
+						if (totalDragUpdates > dragIntervalThreshold)
 						{
 							System.Diagnostics.Debug.WriteLine("Free drag detected.");
 
@@ -113,6 +133,8 @@ namespace Tanks
 					default:
 						break;
 				}
+
+				lastDetectedGesture = detectedGs;
 
 				detectedGs.GestureType = GestureType.None;
 				return detectedGs;
