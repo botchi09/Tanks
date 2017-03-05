@@ -13,7 +13,9 @@ namespace Tanks
 		GraphicsDeviceManager graphics;
 		SpriteBatch spriteBatch;
 		Line line;
+		Tank tank;
 		Texture2D lineTexture;
+		Texture2D tankTexture;
 
 		public Game1()
 		{
@@ -40,6 +42,9 @@ namespace Tanks
 			line.addPoint(new Vector2(200, 100));
 			line.addPoint(new Vector2(300, 300));
 
+			tank = new Tank();
+			tank.setPosition(new Vector2(600, 500));
+
 			base.Initialize();
 		}
 
@@ -52,6 +57,7 @@ namespace Tanks
 			// Create a new SpriteBatch, which can be used to draw textures.
 			spriteBatch = new SpriteBatch(GraphicsDevice);
 			lineTexture = this.Content.Load<Texture2D>("LineTexture");
+			tankTexture = this.Content.Load<Texture2D>("Tank");
 
 			// TODO: use this.Content to load your game content here
 		}
@@ -90,6 +96,15 @@ namespace Tanks
 
 			// TODO: Add your drawing code here
 			line.drawLines(lineTexture, spriteBatch);
+			tank.draw(tankTexture, spriteBatch);
+
+			/*spriteBatch.Begin();
+			spriteBatch.Draw(tankTexture, new Vector2(100, 100), null, Color.White,
+							 0,
+							 new Vector2(100, 100),
+							 1,
+							 SpriteEffects.None, 0f);
+			spriteBatch.End();*/
 
 			base.Draw(gameTime);
 		}
