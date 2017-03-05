@@ -1,10 +1,12 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using System.Collections.Generic;
+using Microsoft.Xna.Framework.Input.Touch;
 
 namespace Tanks
 {
+
+
 	/// <summary>
 	/// This is the main type for your game.
 	/// </summary>
@@ -12,10 +14,13 @@ namespace Tanks
 	{
 		GraphicsDeviceManager graphics;
 		SpriteBatch spriteBatch;
-		Line line;
+		private SpriteFont font;
+		private Line tankFollowLine;
 		Tank tank;
 		Texture2D lineTexture;
 		Texture2D tankTexture;
+
+
 
 		public Game1()
 		{
@@ -30,6 +35,9 @@ namespace Tanks
 			IsFixedTimeStep = false; //Framerate independent updates
 			TargetElapsedTime = System.TimeSpan.FromMilliseconds(((float)1 / 60) * 1000); //60 fps
 		}
+
+		GestureDetect gestureDetect;
+		private string gestureStateString = "No gesture yet...";
 
 		/// <summary>
 		/// Allows the game to perform any initialization it needs to before starting to run.
@@ -49,6 +57,11 @@ namespace Tanks
 			tank.setPosition(new Vector2(100, 100));
 			tank.setWaypoints(line.getPoints());
 
+			gestureDetect = new GestureDetect();
+			TouchPanel.EnabledGestures = GestureType.Tap | GestureType.FreeDrag | GestureType.DragComplete | GestureType.Pinch | GestureType.PinchComplete;
+
+			tankFollowLine = new Tanks.Line();
+
 			base.Initialize();
 		}
 
@@ -60,10 +73,13 @@ namespace Tanks
 		{
 			// Create a new SpriteBatch, which can be used to draw textures.
 			spriteBatch = new SpriteBatch(GraphicsDevice);
+
+			// TODO: use this.Content to load your game content here
+			font = this.Content.Load<SpriteFont>("TanksBodyFont");
 			lineTexture = this.Content.Load<Texture2D>("LineTexture");
 			tankTexture = this.Content.Load<Texture2D>("Tank2");
 
-			// TODO: use this.Content to load your game content here
+
 		}
 
 		/// <summary>
@@ -89,6 +105,45 @@ namespace Tanks
 				Exit();
 
 			// TODO: Add your update logic here
+			DetectedGesture detectedGesture = gestureDetect.getGesture(gameTime.TotalGameTime.TotalMilliseconds);
+			
+			if (detectedGesture.GestureType != GestureType.None)
+			{
+				switch(detectedGesture.GestureType)
+				{
+					case GestureType.Tap:
+						gestureStateString = "Tap!";
+						tankFollowLine = new Line(); //Clear the line on tap
+						break;
+					case GestureType.Flick:
+						gestureStateString = "Flick!";
+						break;
+					case GestureType.FreeDrag:
+						gestureStateString = "Dragging...";
+						if (detectedGesture.firstDetection)
+						{
+							tankFollowLine.addPoint(detectedGesture.firstDetectedGesture.Position);
+
+						}
+						tankFollowLine.addPoint(detectedGesture.Position);
+
+						break;
+					case GestureType.DragComplete:
+						gestureStateString = "Drag complete!";
+						break;
+					case GestureType.Pinch:
+						gestureStateString = "Pinching...";
+						break;
+					case GestureType.PinchComplete:
+						//Fix issue where pinchcomplete detected as flick
+						gestureStateString = "Pinch complete!";
+						break;
+				}
+			}
+			else
+			{
+				//gestureStateString = "No gesture detected.";
+			}
 
 			float timeStep = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
@@ -110,16 +165,14 @@ namespace Tanks
 			GraphicsDevice.Clear(Color.CornflowerBlue);
 
 			// TODO: Add your drawing code here
-			line.drawLines(lineTexture, spriteBatch);
+			tankFollowLine.drawLines(lineTexture, spriteBatch);
 			tank.draw(tankTexture, spriteBatch);
 
-			/*spriteBatch.Begin();
-			spriteBatch.Draw(tankTexture, new Vector2(100, 100), null, Color.White,
-							 0,
-							 new Vector2(100, 100),
-							 1,
-							 SpriteEffects.None, 0f);
-			spriteBatch.End();*/
+			spriteBatch.Begin();
+
+			spriteBatch.DrawString(font, gestureStateString, new Vector2(300, 300), Color.Black);
+
+			spriteBatch.End();
 
 			base.Draw(gameTime);
 		}

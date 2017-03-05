@@ -13,6 +13,12 @@
 
 #---------------------------------- Content ---------------------------------#
 
+#begin TanksBodyFont.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:TextureFormat=Compressed
+/build:TanksBodyFont.spritefont
+
 #begin LineTexture.png
 /importer:TextureImporter
 /processor:TextureProcessor
