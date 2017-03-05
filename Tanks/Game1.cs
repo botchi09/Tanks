@@ -12,7 +12,8 @@ namespace Tanks
 	{
 		GraphicsDeviceManager graphics;
 		SpriteBatch spriteBatch;
-		Line line;
+		Line tankFollowLine;
+		Line coverLine;
 		Texture2D lineTexture;
 
 		public Game1()
@@ -35,10 +36,25 @@ namespace Tanks
 		protected override void Initialize()
 		{
 			// TODO: Add your initialization logic here
-			line = new Line();
-			line.addPoint(new Vector2(100, 200));
-			line.addPoint(new Vector2(200, 100));
-			line.addPoint(new Vector2(300, 300));
+			tankFollowLine = new Line();
+			tankFollowLine.addPoint(new Vector2(100, 200));
+			tankFollowLine.addPoint(new Vector2(200, 100));
+			tankFollowLine.addPoint(new Vector2(300, 300));
+
+			coverLine = new Line();
+			coverLine.addPoint(new Vector2(100, 100));
+			coverLine.addPoint(new Vector2(200, 110));
+			coverLine.addPoint(new Vector2(300, 120));
+			coverLine.addPoint(new Vector2(400, 130));
+			coverLine.addPoint(new Vector2(500, 150));
+			coverLine.addPoint(new Vector2(450, 600));
+			coverLine.addPoint(new Vector2(300, 580));
+			coverLine.addPoint(new Vector2(200, 590));
+			coverLine.addPoint(new Vector2(105, 600));
+			coverLine.addPoint(new Vector2(110, 400));
+			coverLine.addPoint(new Vector2(90, 200));
+			coverLine.addPoint(new Vector2(100, 100));
+
 
 			base.Initialize();
 		}
@@ -89,7 +105,9 @@ namespace Tanks
 			GraphicsDevice.Clear(Color.CornflowerBlue);
 
 			// TODO: Add your drawing code here
-			line.drawLines(lineTexture, spriteBatch);
+			//tankFollowLine.drawLines(lineTexture, spriteBatch);
+			coverLine.drawLines(lineTexture, spriteBatch);
+
 
 			base.Draw(gameTime);
 		}
