@@ -14,7 +14,13 @@ namespace Tanks
 		SpriteBatch spriteBatch;
 		Line tankFollowLine;
 		Line coverLine;
+		Line intersectionLine;
+		Line shouldNotIntersect;
+
+
 		Texture2D lineTexture;
+
+		Cover cover;
 
 		public Game1()
 		{
@@ -55,6 +61,17 @@ namespace Tanks
 			coverLine.addPoint(new Vector2(90, 200));
 			coverLine.addPoint(new Vector2(100, 100));
 
+			intersectionLine = new Line();
+			intersectionLine.addPoint(new Vector2(50, 50));
+			intersectionLine.addPoint(new Vector2(300, 300));
+
+			shouldNotIntersect = new Line();
+			shouldNotIntersect.addPoint(new Vector2(700, 700));
+			shouldNotIntersect.addPoint(new Vector2(500, 700));
+
+			cover = new Cover();
+			cover.setPoints(coverLine.getPoints());
+
 
 			base.Initialize();
 		}
@@ -91,6 +108,7 @@ namespace Tanks
 			if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
 				Exit();
 
+
 			// TODO: Add your update logic here
 
 			base.Update(gameTime);
@@ -107,6 +125,19 @@ namespace Tanks
 			// TODO: Add your drawing code here
 			//tankFollowLine.drawLines(lineTexture, spriteBatch);
 			coverLine.drawLines(lineTexture, spriteBatch);
+			intersectionLine.drawLines(lineTexture, spriteBatch);
+
+			Vector2? intersectionPoint = cover.getLineIntersectionPoint(intersectionLine);
+
+			if (intersectionPoint != null)
+			{
+				//Cover.ExplosionAt(intersectionPoint);
+			}
+			else
+			{
+
+			}
+			//cover.doesLineCollide(shouldNotIntersect);
 
 
 			base.Draw(gameTime);

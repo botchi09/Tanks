@@ -11,6 +11,9 @@ using Android.Views;
 using Android.Widget;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using ClipperLib;
+using Path = System.Collections.Generic.List<ClipperLib.IntPoint>;
+
 
 namespace Tanks
 {
@@ -31,6 +34,21 @@ namespace Tanks
 		public List<Vector2> getPoints()
 		{
 			return points;
+		}
+
+		//Compatibility with Clipper lib
+		public Path getIntPointsPath()
+		{
+			Path convertedPoints = new Path();
+
+			//We must iterate in order for correct conversion
+			for (int index = 0; index < points.Count; index++)
+			{
+
+				convertedPoints.Add(Vector2Ext.ToIntPoint(points[index]));
+			}
+
+			return convertedPoints;
 		}
 
 		//http://gamedev.stackexchange.com/a/26027
