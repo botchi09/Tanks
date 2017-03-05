@@ -47,15 +47,14 @@ namespace Tanks
 		/// </summary>
 		protected override void Initialize()
 		{
-			// TODO: Add your initialization logic here
-			line = new Line();
-			line.addPoint(new Vector2(800, 700));
-			line.addPoint(new Vector2(600, 500));
-			line.addPoint(new Vector2(300, 900));
+			tankFollowLine = new Line();
+			tankFollowLine.addPoint(new Vector2(800, 700));
+			tankFollowLine.addPoint(new Vector2(600, 500));
+			tankFollowLine.addPoint(new Vector2(300, 900));
 
 			tank = new Tank();
 			tank.setPosition(new Vector2(100, 100));
-			tank.setWaypoints(line.getPoints());
+			//tank.setWaypoints(tankFollowLine.getPoints());
 
 			gestureDetect = new GestureDetect();
 			TouchPanel.EnabledGestures = GestureType.Tap | GestureType.FreeDrag | GestureType.DragComplete | GestureType.Pinch | GestureType.PinchComplete;
@@ -113,6 +112,7 @@ namespace Tanks
 				{
 					case GestureType.Tap:
 						gestureStateString = "Tap!";
+						tank.clearWaypoints();
 						tankFollowLine = new Line(); //Clear the line on tap
 						break;
 					case GestureType.Flick:
@@ -123,9 +123,11 @@ namespace Tanks
 						if (detectedGesture.firstDetection)
 						{
 							tankFollowLine.addPoint(detectedGesture.firstDetectedGesture.Position);
+							tank.addWaypoint(detectedGesture.firstDetectedGesture.Position);
 
 						}
 						tankFollowLine.addPoint(detectedGesture.Position);
+						tank.addWaypoint(detectedGesture.Position);
 
 						break;
 					case GestureType.DragComplete:
@@ -147,7 +149,7 @@ namespace Tanks
 
 			float timeStep = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-			if (line != null)
+			if (tankFollowLine != null)
 			{
 				tank.update(timeStep);
 			}

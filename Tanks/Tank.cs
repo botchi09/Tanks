@@ -20,7 +20,7 @@ namespace Tanks
 		public Vector2 position = new Vector2(300, 300);
 		private float rotation = 0; //Rotation in radians. Use accessor functions instead.
 		private int speed = 200;
-		private List<Vector2> waypoints;
+		private List<Vector2> waypoints = new List<Vector2>();
 
 
 		public void setPosition(Vector2 position)
