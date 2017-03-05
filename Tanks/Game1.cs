@@ -26,6 +26,9 @@ namespace Tanks
 			graphics.PreferredBackBufferWidth = 800;
 			graphics.PreferredBackBufferHeight = 480;
 			graphics.SupportedOrientations = DisplayOrientation.LandscapeLeft | DisplayOrientation.LandscapeRight;
+
+			IsFixedTimeStep = false; //Framerate independent updates
+			TargetElapsedTime = System.TimeSpan.FromMilliseconds(((float)1 / 60) * 1000); //60 fps
 		}
 
 		/// <summary>
@@ -38,12 +41,13 @@ namespace Tanks
 		{
 			// TODO: Add your initialization logic here
 			line = new Line();
-			line.addPoint(new Vector2(100, 200));
-			line.addPoint(new Vector2(200, 100));
-			line.addPoint(new Vector2(300, 300));
+			line.addPoint(new Vector2(800, 700));
+			line.addPoint(new Vector2(600, 500));
+			line.addPoint(new Vector2(300, 900));
 
 			tank = new Tank();
-			tank.setPosition(new Vector2(600, 500));
+			tank.setPosition(new Vector2(100, 100));
+			tank.setWaypoints(line.getPoints());
 
 			base.Initialize();
 		}
@@ -57,7 +61,7 @@ namespace Tanks
 			// Create a new SpriteBatch, which can be used to draw textures.
 			spriteBatch = new SpriteBatch(GraphicsDevice);
 			lineTexture = this.Content.Load<Texture2D>("LineTexture");
-			tankTexture = this.Content.Load<Texture2D>("Tank");
+			tankTexture = this.Content.Load<Texture2D>("Tank2");
 
 			// TODO: use this.Content to load your game content here
 		}
@@ -71,6 +75,9 @@ namespace Tanks
 			// TODO: Unload any non ContentManager content here
 		}
 
+		Vector2 nextWaypoint;
+		int waypointIndex = 1;
+
 		/// <summary>
 		/// Allows the game to run logic such as updating the world,
 		/// checking for collisions, gathering input, and playing audio.
@@ -82,6 +89,14 @@ namespace Tanks
 				Exit();
 
 			// TODO: Add your update logic here
+
+			float timeStep = (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+			if (line != null)
+			{
+				tank.update(timeStep);
+			}
+
 
 			base.Update(gameTime);
 		}
