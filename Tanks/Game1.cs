@@ -1,10 +1,12 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using System.Collections.Generic;
+using Microsoft.Xna.Framework.Input.Touch;
 
 namespace Tanks
 {
+
+
 	/// <summary>
 	/// This is the main type for your game.
 	/// </summary>
@@ -12,13 +14,16 @@ namespace Tanks
 	{
 		GraphicsDeviceManager graphics;
 		SpriteBatch spriteBatch;
-		Line tankFollowLine;
+		private SpriteFont font;
+		private Line tankFollowLine;
+		Tank tank;
 		Line coverLine;
 		Line intersectionLine;
 		Line shouldNotIntersect;
 
 
 		Texture2D lineTexture;
+		Texture2D tankTexture;
 
 		Cover cover;
 
@@ -31,7 +36,13 @@ namespace Tanks
 			graphics.PreferredBackBufferWidth = 800;
 			graphics.PreferredBackBufferHeight = 480;
 			graphics.SupportedOrientations = DisplayOrientation.LandscapeLeft | DisplayOrientation.LandscapeRight;
+
+			IsFixedTimeStep = false; //Framerate independent updates
+			TargetElapsedTime = System.TimeSpan.FromMilliseconds(((float)1 / 60) * 1000); //60 fps
 		}
+
+		GestureDetect gestureDetect;
+		private string gestureStateString = "No gesture yet...";
 
 		/// <summary>
 		/// Allows the game to perform any initialization it needs to before starting to run.
@@ -41,12 +52,19 @@ namespace Tanks
 		/// </summary>
 		protected override void Initialize()
 		{
-			// TODO: Add your initialization logic here
 			tankFollowLine = new Line();
-			tankFollowLine.addPoint(new Vector2(100, 200));
-			tankFollowLine.addPoint(new Vector2(200, 100));
-			tankFollowLine.addPoint(new Vector2(300, 300));
+			tankFollowLine.addPoint(new Vector2(800, 700));
+			tankFollowLine.addPoint(new Vector2(600, 500));
+			tankFollowLine.addPoint(new Vector2(300, 900));
 
+			tank = new Tank();
+			tank.setPosition(new Vector2(100, 100));
+			//tank.setWaypoints(tankFollowLine.getPoints());
+
+			gestureDetect = new GestureDetect();
+			TouchPanel.EnabledGestures = GestureType.Tap | GestureType.FreeDrag | GestureType.DragComplete | GestureType.Pinch | GestureType.PinchComplete;
+
+			tankFollowLine = new Tanks.Line();
 			coverLine = new Line();
 			coverLine.addPoint(new Vector2(100, 100));
 			coverLine.addPoint(new Vector2(200, 110));
@@ -90,9 +108,13 @@ namespace Tanks
 		{
 			// Create a new SpriteBatch, which can be used to draw textures.
 			spriteBatch = new SpriteBatch(GraphicsDevice);
-			lineTexture = this.Content.Load<Texture2D>("LineTexture");
 
 			// TODO: use this.Content to load your game content here
+			font = this.Content.Load<SpriteFont>("TanksBodyFont");
+			lineTexture = this.Content.Load<Texture2D>("LineTexture");
+			tankTexture = this.Content.Load<Texture2D>("Tank2");
+
+
 		}
 
 		/// <summary>
@@ -116,6 +138,56 @@ namespace Tanks
 
 
 			// TODO: Add your update logic here
+			DetectedGesture detectedGesture = gestureDetect.getGesture(gameTime.TotalGameTime.TotalMilliseconds);
+			
+			if (detectedGesture.GestureType != GestureType.None)
+			{
+				switch(detectedGesture.GestureType)
+				{
+					case GestureType.Tap:
+						gestureStateString = "Tap!";
+						tank.clearWaypoints();
+						tankFollowLine = new Line(); //Clear the line on tap
+						break;
+					case GestureType.Flick:
+						gestureStateString = "Flick!";
+						break;
+					case GestureType.FreeDrag:
+						gestureStateString = "Dragging...";
+						if (detectedGesture.firstDetection)
+						{
+							tankFollowLine.addPoint(detectedGesture.firstDetectedGesture.Position);
+							tank.addWaypoint(detectedGesture.firstDetectedGesture.Position);
+
+						}
+						tankFollowLine.addPoint(detectedGesture.Position);
+						tank.addWaypoint(detectedGesture.Position);
+
+						break;
+					case GestureType.DragComplete:
+						gestureStateString = "Drag complete!";
+						break;
+					case GestureType.Pinch:
+						gestureStateString = "Pinching...";
+						break;
+					case GestureType.PinchComplete:
+						//Fix issue where pinchcomplete detected as flick
+						gestureStateString = "Pinch complete!";
+						break;
+				}
+			}
+			else
+			{
+				//gestureStateString = "No gesture detected.";
+			}
+
+			float timeStep = (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+			if (tankFollowLine != null)
+			{
+				tank.update(timeStep);
+			}
+
 
 			base.Update(gameTime);
 		}
@@ -129,12 +201,19 @@ namespace Tanks
 			GraphicsDevice.Clear(Color.CornflowerBlue);
 
 			// TODO: Add your drawing code here
-			//tankFollowLine.drawLines(lineTexture, spriteBatch);
-			//coverLine.drawLines(lineTexture, spriteBatch);
+			tankFollowLine.drawLines(lineTexture, spriteBatch);
+			tank.draw(tankTexture, spriteBatch);
 			intersectionLine.drawLines(lineTexture, spriteBatch);
 
 
 			cover.draw(lineTexture, spriteBatch);
+
+
+			spriteBatch.Begin();
+
+			spriteBatch.DrawString(font, gestureStateString, new Vector2(300, 300), Color.Black);
+
+			spriteBatch.End();
 
 			base.Draw(gameTime);
 		}
