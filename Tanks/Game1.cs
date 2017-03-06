@@ -139,10 +139,10 @@ namespace Tanks
 
 			// TODO: Add your update logic here
 			DetectedGesture detectedGesture = gestureDetect.getGesture(gameTime.TotalGameTime.TotalMilliseconds);
-			
+
 			if (detectedGesture.GestureType != GestureType.None)
 			{
-				switch(detectedGesture.GestureType)
+				switch (detectedGesture.GestureType)
 				{
 					case GestureType.Tap:
 						gestureStateString = "Tap!";
