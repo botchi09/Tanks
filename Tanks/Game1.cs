@@ -72,6 +72,12 @@ namespace Tanks
 			cover = new Cover();
 			cover.setPoints(coverLine.getPoints());
 
+			Vector2? intersectionPoint = cover.getLineIntersectionPoint(intersectionLine);
+
+			if (intersectionPoint != null)
+			{
+				cover.ExplosionAt((Vector2)intersectionPoint, 50);
+			}
 
 			base.Initialize();
 		}
@@ -124,21 +130,11 @@ namespace Tanks
 
 			// TODO: Add your drawing code here
 			//tankFollowLine.drawLines(lineTexture, spriteBatch);
-			coverLine.drawLines(lineTexture, spriteBatch);
+			//coverLine.drawLines(lineTexture, spriteBatch);
 			intersectionLine.drawLines(lineTexture, spriteBatch);
 
-			Vector2? intersectionPoint = cover.getLineIntersectionPoint(intersectionLine);
 
-			if (intersectionPoint != null)
-			{
-				//Cover.ExplosionAt(intersectionPoint);
-			}
-			else
-			{
-
-			}
-			//cover.doesLineCollide(shouldNotIntersect);
-
+			cover.draw(lineTexture, spriteBatch);
 
 			base.Draw(gameTime);
 		}
