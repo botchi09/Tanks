@@ -76,7 +76,7 @@ namespace Tanks
 
 			if (intersectionPoint != null)
 			{
-				cover.ExplosionAt((Vector2)intersectionPoint, 50);
+				Explosion explosion = new Explosion((Vector2)intersectionPoint, 50, cover);
 			}
 
 			base.Initialize();
