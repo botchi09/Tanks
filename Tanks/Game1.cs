@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System.Collections.Generic;
 
 namespace Tanks
 {
@@ -11,6 +12,15 @@ namespace Tanks
 	{
 		GraphicsDeviceManager graphics;
 		SpriteBatch spriteBatch;
+		Line tankFollowLine;
+		Line coverLine;
+		Line intersectionLine;
+		Line shouldNotIntersect;
+
+
+		Texture2D lineTexture;
+
+		Cover cover;
 
 		public Game1()
 		{
@@ -32,6 +42,42 @@ namespace Tanks
 		protected override void Initialize()
 		{
 			// TODO: Add your initialization logic here
+			tankFollowLine = new Line();
+			tankFollowLine.addPoint(new Vector2(100, 200));
+			tankFollowLine.addPoint(new Vector2(200, 100));
+			tankFollowLine.addPoint(new Vector2(300, 300));
+
+			coverLine = new Line();
+			coverLine.addPoint(new Vector2(100, 100));
+			coverLine.addPoint(new Vector2(200, 110));
+			coverLine.addPoint(new Vector2(300, 120));
+			coverLine.addPoint(new Vector2(400, 130));
+			coverLine.addPoint(new Vector2(500, 150));
+			coverLine.addPoint(new Vector2(450, 600));
+			coverLine.addPoint(new Vector2(300, 580));
+			coverLine.addPoint(new Vector2(200, 590));
+			coverLine.addPoint(new Vector2(105, 600));
+			coverLine.addPoint(new Vector2(110, 400));
+			coverLine.addPoint(new Vector2(90, 200));
+			coverLine.addPoint(new Vector2(100, 100));
+
+			intersectionLine = new Line();
+			intersectionLine.addPoint(new Vector2(50, 50));
+			intersectionLine.addPoint(new Vector2(300, 300));
+
+			shouldNotIntersect = new Line();
+			shouldNotIntersect.addPoint(new Vector2(700, 700));
+			shouldNotIntersect.addPoint(new Vector2(500, 700));
+
+			cover = new Cover();
+			cover.setPoints(coverLine.getPoints());
+
+			Vector2? intersectionPoint = cover.getLineIntersectionPoint(intersectionLine);
+
+			if (intersectionPoint != null)
+			{
+				Explosion explosion = new Explosion((Vector2)intersectionPoint, 50, cover);
+			}
 
 			base.Initialize();
 		}
@@ -44,6 +90,7 @@ namespace Tanks
 		{
 			// Create a new SpriteBatch, which can be used to draw textures.
 			spriteBatch = new SpriteBatch(GraphicsDevice);
+			lineTexture = this.Content.Load<Texture2D>("LineTexture");
 
 			// TODO: use this.Content to load your game content here
 		}
@@ -67,6 +114,7 @@ namespace Tanks
 			if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
 				Exit();
 
+
 			// TODO: Add your update logic here
 
 			base.Update(gameTime);
@@ -81,6 +129,12 @@ namespace Tanks
 			GraphicsDevice.Clear(Color.CornflowerBlue);
 
 			// TODO: Add your drawing code here
+			//tankFollowLine.drawLines(lineTexture, spriteBatch);
+			//coverLine.drawLines(lineTexture, spriteBatch);
+			intersectionLine.drawLines(lineTexture, spriteBatch);
+
+
+			cover.draw(lineTexture, spriteBatch);
 
 			base.Draw(gameTime);
 		}
