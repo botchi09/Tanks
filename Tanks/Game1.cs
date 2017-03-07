@@ -2,6 +2,8 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Input.Touch;
+using System.Collections.Generic;
+using System;
 
 namespace Tanks
 {
@@ -15,10 +17,14 @@ namespace Tanks
 		GraphicsDeviceManager graphics;
 		SpriteBatch spriteBatch;
 		private SpriteFont font;
+
 		private Line tankFollowLine;
-		Tank tank;
+		private TankLineHistory tankLineHistory;
+
 		Texture2D lineTexture;
 		Texture2D tankTexture;
+
+		private TanksController tanksController;
 
 
 
@@ -52,14 +58,19 @@ namespace Tanks
 			tankFollowLine.addPoint(new Vector2(600, 500));
 			tankFollowLine.addPoint(new Vector2(300, 900));
 
-			tank = new Tank();
-			tank.setPosition(new Vector2(100, 100));
 			//tank.setWaypoints(tankFollowLine.getPoints());
 
 			gestureDetect = new GestureDetect();
 			TouchPanel.EnabledGestures = GestureType.Tap | GestureType.FreeDrag | GestureType.DragComplete | GestureType.Pinch | GestureType.PinchComplete;
 
+			tankLineHistory = new TankLineHistory();
+
 			tankFollowLine = new Tanks.Line();
+
+			tanksController = new TanksController();
+			tanksController.createTank(new Vector2(100, 100), tankLineHistory);
+			tanksController.createTank(new Vector2(300, 100), tankLineHistory);
+			tanksController.createTank(new Vector2(500, 100), tankLineHistory);
 
 			base.Initialize();
 		}
@@ -90,8 +101,18 @@ namespace Tanks
 			// TODO: Unload any non ContentManager content here
 		}
 
-		Vector2 nextWaypoint;
-		int waypointIndex = 1;
+		int minDragDist = 10;
+
+		//Minimise number of points by requiring a minimum drag distance before new waypoint is created
+		private bool suffientDragDistance(Vector2 point1, Vector2 point2)
+		{
+			//TODO: Fix unresponsiveness as result of this code
+			return true;
+			//return UtilityFuncs.DistanceSquared(point1, point2) > (minDragDist * minDragDist);
+		}
+
+		Tank lastSelectedTank = null;
+		Vector2 lastTouchPosition;
 
 		/// <summary>
 		/// Allows the game to run logic such as updating the world,
@@ -105,14 +126,18 @@ namespace Tanks
 
 			// TODO: Add your update logic here
 			DetectedGesture detectedGesture = gestureDetect.getGesture(gameTime.TotalGameTime.TotalMilliseconds);
-			
+			Tank selectedTank = tanksController.getTankFromTouchPosition(detectedGesture.Position);
+
 			if (detectedGesture.GestureType != GestureType.None)
 			{
-				switch(detectedGesture.GestureType)
+				switch (detectedGesture.GestureType)
 				{
 					case GestureType.Tap:
 						gestureStateString = "Tap!";
-						tank.clearWaypoints();
+						if (lastSelectedTank != null)
+						{
+							lastSelectedTank.clearWaypoints();
+						}
 						tankFollowLine = new Line(); //Clear the line on tap
 						break;
 					case GestureType.Flick:
@@ -120,21 +145,51 @@ namespace Tanks
 						break;
 					case GestureType.FreeDrag:
 						gestureStateString = "Dragging...";
+
+						//Ensure the user must drag out from the tank to draw. Each new drag creates a new line.
 						if (detectedGesture.firstDetection)
 						{
-							tankFollowLine.addPoint(detectedGesture.firstDetectedGesture.Position);
-							tank.addWaypoint(detectedGesture.firstDetectedGesture.Position);
+							Vector2 firstPosition = detectedGesture.firstDetectedGesture.Position;
+							if (selectedTank != null && suffientDragDistance(selectedTank.getPosition(), firstPosition))
+							{
+								selectedTank.setMovementEnabled(false);
+								tankFollowLine = new Line();
+								tankFollowLine.addPoint(selectedTank.getPosition()); //Create illusion of tank closely following line
+								tankFollowLine.addPoint(firstPosition);
 
+								selectedTank.clearWaypoints();
+								selectedTank.addWaypoint(firstPosition);
+
+								lastSelectedTank = selectedTank;
+								lastTouchPosition = firstPosition;
+
+							}
+							else
+							{
+								lastSelectedTank = null;
+							}
 						}
-						tankFollowLine.addPoint(detectedGesture.Position);
-						tank.addWaypoint(detectedGesture.Position);
+
+						Vector2 gesturePosition = detectedGesture.Position;
+						if (lastSelectedTank != null && suffientDragDistance(lastTouchPosition, gesturePosition))
+						{
+							tankFollowLine.addPoint(gesturePosition);
+							lastSelectedTank.addWaypoint(gesturePosition);
+						}
+
+						lastTouchPosition = gesturePosition;
 
 						break;
 					case GestureType.DragComplete:
 						gestureStateString = "Drag complete!";
+						if (lastSelectedTank != null)
+						{
+							lastSelectedTank.setMovementEnabled(true);
+						}
 						break;
 					case GestureType.Pinch:
 						gestureStateString = "Pinching...";
+						tankLineHistory.undoLast();
 						break;
 					case GestureType.PinchComplete:
 						//Fix issue where pinchcomplete detected as flick
@@ -149,10 +204,11 @@ namespace Tanks
 
 			float timeStep = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-			if (tankFollowLine != null)
+			/*if (tankFollowLine != null)
 			{
-				tank.update(timeStep);
-			}
+				selectedTank.update(timeStep);
+			}*/
+			tanksController.update(timeStep);
 
 
 			base.Update(gameTime);
@@ -168,7 +224,7 @@ namespace Tanks
 
 			// TODO: Add your drawing code here
 			tankFollowLine.drawLines(lineTexture, spriteBatch);
-			tank.draw(tankTexture, spriteBatch);
+			tanksController.draw(tankTexture, spriteBatch);
 
 			spriteBatch.Begin();
 

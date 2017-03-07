@@ -67,6 +67,9 @@
     <Compile Include="Resources\Resource.Designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tank.cs" />
+    <Compile Include="TankLineHistory.cs" />
+    <Compile Include="TanksController.cs" />
+    <Compile Include="UtilityFuncs.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\AboutResources.txt" />
