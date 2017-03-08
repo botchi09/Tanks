@@ -31,6 +31,12 @@ namespace Tanks
 			points.Add(newPoint);
 		}
 
+		public void setPoints(List<Vector2> newPoints)
+		{
+			points.Clear();
+			points.AddRange(newPoints);
+		}
+
 		public List<Vector2> getPoints()
 		{
 			return points;
@@ -69,7 +75,7 @@ namespace Tanks
 			//Begin at one as we must ignore the first point in order to connect lines between 2 vectors
 			for (var i = 1; i < points.Count; i++)
 			{
-				DrawLine(spriteBatch, lineTexture, points[i-1], points[i]);
+				DrawLine(spriteBatch, lineTexture, points[i - 1], points[i]);
 			}
 			spriteBatch.End();
 		}
