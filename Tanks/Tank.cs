@@ -68,13 +68,16 @@ namespace Tanks
 			rotation = (float)Math.Atan2(vector.Y - position.Y, vector.X - position.X);
 		}
 
-		public void draw(Texture2D texture, SpriteBatch spriteBatch)
+		public void draw(Texture2D tankTexture, Texture2D tankOldLineTexture, SpriteBatch spriteBatch)
 		{
+			Line currentOldWaypointLine = new Line();
+			currentOldWaypointLine.setPoints(completedWaypoints);
+			currentOldWaypointLine.drawLines(tankOldLineTexture, spriteBatch);
 
 			spriteBatch.Begin();
-			spriteBatch.Draw(texture, position, null, Color.White,
+			spriteBatch.Draw(tankTexture, position, null, Color.White,
 							 rotation,
-							 new Vector2(texture.Width / 2, texture.Height / 2),
+							 new Vector2(tankTexture.Width / 2, tankTexture.Height / 2),
 							 1,
 							 SpriteEffects.None, 0f);
 			spriteBatch.End();

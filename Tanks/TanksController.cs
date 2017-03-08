@@ -91,11 +91,11 @@ namespace Tanks
 			});
 		}
 
-		public void draw(Texture2D tankTexture, SpriteBatch spriteBatch)
+		public void draw(Texture2D tankTexture, Texture2D tankOldLineTexture, SpriteBatch spriteBatch)
 		{
 			tanks.ForEach(delegate (Tank tank)
 			{
-				tank.draw(tankTexture, spriteBatch);
+				tank.draw(tankTexture, tankOldLineTexture, spriteBatch);
 			});
 		}
 	}

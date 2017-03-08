@@ -88,7 +88,10 @@ namespace Tanks
 
 			// TODO: use this.Content to load your game content here
 			font = this.Content.Load<SpriteFont>("TanksBodyFont");
+
 			lineTexture = this.Content.Load<Texture2D>("LineTexture");
+			oldLineTexture = this.Content.Load<Texture2D>("OldLineTexture");
+
 			tankTexture = this.Content.Load<Texture2D>("Tank2");
 
 
@@ -242,7 +245,7 @@ namespace Tanks
 
 			// TODO: Add your drawing code here
 			tankFollowLine.drawLines(lineTexture, spriteBatch);
-			tanksController.draw(tankTexture, spriteBatch);
+			tanksController.draw(tankTexture, oldLineTexture, spriteBatch);
 			tankLineHistory.draw(oldLineTexture, spriteBatch);
 
 			spriteBatch.Begin();
