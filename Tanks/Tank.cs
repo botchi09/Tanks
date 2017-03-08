@@ -87,18 +87,29 @@ namespace Tanks
 
 		private void makeCallback()
 		{
-			moveCompleteHistoryCallback.tankMoveComplete(this, completedWaypoints);
+			moveCompleteHistoryCallback.tankMoveComplete(this, completedWaypoints.GetRange(0, completedWaypoints.Count));
+			completedWaypoints.Clear();
 		}
 
 		public void clearWaypoints()
 		{
+			setMovementEnabled(false);
 			waypoints.Clear();
-			if (waypoints.Count > 0)
+
+		}
+
+		public void saveCurrentWaypoints()
+		{
+			if (completedWaypoints.Count > 0)
 			{
 				makeCallback();
 			}
-			completedWaypoints.Clear();
+		}
 
+		public void saveAndClearWaypoints()
+		{
+			saveCurrentWaypoints();
+			clearWaypoints();
 		}
 
 		//By default, C# passes by ref. We must clone each item.
@@ -107,14 +118,14 @@ namespace Tanks
 			waypoints = newWaypoints.GetRange(0, newWaypoints.Count);
 		}
 
-		private bool hasCalledBack = true;
+		private bool hasSavedWaypoints = true;
 
 		public void update(float timeStep)
 		{
 			//Move towards waypoints here
 			if (waypoints.Count > 0 && canMove())
 			{
-				hasCalledBack = false;
+				hasSavedWaypoints = false;
 				bool waypointMoveSuccess = moveTowardsPoint(waypoints[0], timeStep);
 				if (waypointMoveSuccess)
 				{
@@ -126,10 +137,10 @@ namespace Tanks
 					faceVector(waypoints[0]);
 				}
 			}
-			if (waypoints.Count == 0 && !hasCalledBack)
+			if (waypoints.Count == 0 && !hasSavedWaypoints)
 			{
-				hasCalledBack = true;
-				makeCallback();
+				hasSavedWaypoints = true;
+				saveCurrentWaypoints();
 			}
 		}
 
