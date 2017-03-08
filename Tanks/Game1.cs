@@ -169,16 +169,12 @@ namespace Tanks
 			// TODO: Add your update logic here
 			DetectedGesture detectedGesture = gestureDetect.getGesture(gameTime.TotalGameTime.TotalMilliseconds); //May be null before game space is fully initialized
 			if (detectedGesture != null)
-			DetectedGesture detectedGesture = gestureDetect.getGesture(gameTime.TotalGameTime.TotalMilliseconds);
-
-			if (detectedGesture.GestureType != GestureType.None)
 			{
+				Tank selectedTank = tanksController.getTankFromTouchPosition(detectedGesture.Position);
 
 
 				if (detectedGesture.GestureType != GestureType.None)
 				{
-				switch(detectedGesture.GestureType)
-					Tank selectedTank = tanksController.getTankFromTouchPosition(detectedGesture.Position);
 
 					switch (detectedGesture.GestureType)
 					{
@@ -212,7 +208,6 @@ namespace Tanks
 
 									lastSelectedTank = selectedTank;
 									lastTouchPosition = firstPosition;
-
 
 									selectedTank.setMovementEnabled(false);
 
@@ -266,6 +261,7 @@ namespace Tanks
 
 				base.Update(gameTime);
 			}
+
 		}
 
 		private void undoLastAction()

@@ -60,6 +60,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Activity1.cs" />
+    <Compile Include="Buttons\Button.cs" />
+    <Compile Include="Buttons\ButtonController.cs" />
+    <Compile Include="Buttons\ButtonType.cs" />
     <Compile Include="DetectedGesture.cs" />
     <Compile Include="Cover.cs" />
     <Compile Include="Explosion.cs" />
