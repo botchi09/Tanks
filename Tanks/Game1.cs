@@ -31,8 +31,13 @@ namespace Tanks
 
 		Texture2D tankTexture;
 
+		Texture2D coverTexture;
+
 		private TanksController tanksController;
 		Cover cover;
+		List<Cover> coverList = new List<Cover>();
+
+		bool coverDrawingMode = true;
 
 
 		public Game1()
@@ -102,12 +107,16 @@ namespace Tanks
 			cover = new Cover();
 			cover.setPoints(coverLine.getPoints());
 
+
 			Vector2? intersectionPoint = cover.getLineIntersectionPoint(intersectionLine);
 
 			if (intersectionPoint != null)
 			{
 				Explosion explosion = new Explosion((Vector2)intersectionPoint, 50, cover);
 			}
+
+			coverList.Add(cover);
+
 
 			base.Initialize();
 		}
@@ -126,6 +135,9 @@ namespace Tanks
 
 			lineTexture = this.Content.Load<Texture2D>("LineTexture");
 			oldLineTexture = this.Content.Load<Texture2D>("OldLineTexture");
+
+			coverTexture = this.Content.Load<Texture2D>("CoverTexture");
+
 
 			tankTexture = this.Content.Load<Texture2D>("Tank2");
 
@@ -168,38 +180,47 @@ namespace Tanks
 
 			// TODO: Add your update logic here
 			DetectedGesture detectedGesture = gestureDetect.getGesture(gameTime.TotalGameTime.TotalMilliseconds); //May be null before game space is fully initialized
-			if (detectedGesture != null)
-			DetectedGesture detectedGesture = gestureDetect.getGesture(gameTime.TotalGameTime.TotalMilliseconds);
 
 			if (detectedGesture.GestureType != GestureType.None)
 			{
 
-
-				if (detectedGesture.GestureType != GestureType.None)
+				Tank selectedTank = null;
+				if (!coverDrawingMode)
 				{
-				switch(detectedGesture.GestureType)
-					Tank selectedTank = tanksController.getTankFromTouchPosition(detectedGesture.Position);
+					selectedTank = tanksController.getTankFromTouchPosition(detectedGesture.Position);
+				}
 
-					switch (detectedGesture.GestureType)
-					{
-						case GestureType.Tap:
-							gestureStateString = "Tap!";
+				switch (detectedGesture.GestureType)
+				{
+					case GestureType.Tap:
+						gestureStateString = "Tap!";
+						if (!coverDrawingMode)
+						{
 							if (lastSelectedTank != null)
 							{
 								lastSelectedTank.saveAndClearWaypoints();
 							}
-							tankFollowLine = new Line(); //Clear the line on tap
+							tankFollowLine = new Line(); //Clear the line on tap}
+						}
+						else
+						{
+							Explosion explosion = new Explosion(detectedGesture.Position, 100, coverList);
+						}
 							break;
-						case GestureType.Flick:
-							gestureStateString = "Flick!";
-							break;
-						case GestureType.FreeDrag:
-							gestureStateString = "Dragging...";
+					case GestureType.Flick:
+						gestureStateString = "Flick!";
+						break;
+					case GestureType.FreeDrag:
+						gestureStateString = "Dragging...";
 
-							//Ensure the user must drag out from the tank to draw. Each new drag creates a new line.
-							if (detectedGesture.firstDetection)
+						//Ensure the user must drag out from the tank to draw. Each new drag creates a new line.
+						if (detectedGesture.firstDetection)
+						{
+							Vector2 firstPosition = detectedGesture.firstDetectedGesture.Position;
+
+							if (!coverDrawingMode)
 							{
-								Vector2 firstPosition = detectedGesture.firstDetectedGesture.Position;
+
 								if (selectedTank != null && suffientDragDistance(selectedTank.getPosition(), firstPosition))
 								{
 									tankFollowLine = new Line();
@@ -222,59 +243,93 @@ namespace Tanks
 									lastSelectedTank = null;
 								}
 							}
+							else
+							{
+								coverLine = new Tanks.Line();
+								coverLine.addPoint(firstPosition);
+							}
+						}
 
-							Vector2 gesturePosition = detectedGesture.Position;
+						Vector2 gesturePosition = detectedGesture.Position;
+						if (!coverDrawingMode)
+						{
 							if (lastSelectedTank != null && suffientDragDistance(lastTouchPosition, gesturePosition))
 							{
 								tankFollowLine.addPoint(gesturePosition);
 								lastSelectedTank.addWaypoint(gesturePosition);
 							}
+						}
+						else
+						{
+							coverLine.addPoint(detectedGesture.Position);
+						}
 
-							lastTouchPosition = gesturePosition;
+						lastTouchPosition = gesturePosition;
 
-							break;
-						case GestureType.DragComplete:
-							gestureStateString = "Drag complete!";
+						break;
+					case GestureType.DragComplete:
+						gestureStateString = "Drag complete!";
+						if (!coverDrawingMode)
+						{
 							if (lastSelectedTank != null)
 							{
 								lastSelectedTank.setMovementEnabled(true);
 							}
-							break;
-						case GestureType.Pinch:
-							gestureStateString = "Pinching...";
-							undoLastAction();
-							break;
-						case GestureType.PinchComplete:
-							//Fix issue where pinchcomplete detected as flick
-							gestureStateString = "Pinch complete!";
-							break;
-					}
+						}
+						else
+						{
+							coverLine.addPoint(coverLine.getPoints()[0]);
+							Cover cover = new Cover();
+							cover.setPoints(coverLine.getPoints());
+							coverList.Add(cover);
+						}
+
+						break;
+					case GestureType.Pinch:
+						gestureStateString = "Pinching...";
+						undoLastAction();
+						break;
+					case GestureType.PinchComplete:
+						//Fix issue where pinchcomplete detected as flick
+						gestureStateString = "Pinch complete!";
+						break;
 				}
-				else
-				{
-					//gestureStateString = "No gesture detected.";
-				}
-
-				float timeStep = (float)gameTime.ElapsedGameTime.TotalSeconds;
-
-				/*if (tankFollowLine != null)
-				{
-					selectedTank.update(timeStep);
-				}*/
-				tanksController.update(timeStep);
-
-
-				base.Update(gameTime);
 			}
+			else
+			{
+				//gestureStateString = "No gesture detected.";
+			}
+
+			float timeStep = (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+			/*if (tankFollowLine != null)
+			{
+				selectedTank.update(timeStep);
+			}*/
+			tanksController.update(timeStep);
+
+
+			base.Update(gameTime);
 		}
+
 
 		private void undoLastAction()
 		{
-			if (lastSelectedTank != null)
+			if (!coverDrawingMode)
 			{
-				lastSelectedTank.saveAndClearWaypoints();
+				if (lastSelectedTank != null)
+				{
+					lastSelectedTank.saveAndClearWaypoints();
+				}
+				tankLineHistory.undoLast();
 			}
-			tankLineHistory.undoLast();
+			else
+			{
+				if (coverList.Count > 0)
+				{
+					coverList.RemoveAt(coverList.Count - 1);
+				}
+			}
 		}
 
 		/// <summary>
@@ -286,13 +341,23 @@ namespace Tanks
 			GraphicsDevice.Clear(Color.CornflowerBlue);
 
 			// TODO: Add your drawing code here
-			tankFollowLine.drawLines(lineTexture, spriteBatch);
+
+			if (!coverDrawingMode)
+			{
+				tankFollowLine.drawLines(lineTexture, spriteBatch);
+			}
+			else
+			{
+				coverLine.drawLines(lineTexture, spriteBatch);
+			}
 			tanksController.draw(tankTexture, oldLineTexture, spriteBatch);
 			tankLineHistory.draw(oldLineTexture, spriteBatch);
 			intersectionLine.drawLines(lineTexture, spriteBatch);
 
-
-			cover.draw(lineTexture, spriteBatch);
+			coverList.ForEach(delegate (Cover coverItem)
+			{
+				coverItem.draw(coverTexture, spriteBatch);
+			});
 
 
 			spriteBatch.Begin();

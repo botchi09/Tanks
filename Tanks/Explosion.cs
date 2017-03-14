@@ -18,6 +18,10 @@ namespace Tanks
 {
 	class Explosion
 	{
+		private int radius;
+		private List<Cover> coverList = new List<Cover>;
+		private Vector2 centre;
+
 		//http://stackoverflow.com/a/5301049
 		private Path createCircleOfPoints(int points, double radius, IntPoint centre)
 		{
@@ -45,19 +49,27 @@ namespace Tanks
 
 		public Explosion(Vector2 centre, int radius, Cover cover)
 		{
-			var coverList = new List<Cover>();
 			coverList.Add(cover);
-			ExplosionAt(centre, radius, coverList);
+			
+			
 		}
 
 		public Explosion(Vector2 centre, int radius, List<Cover> allCover)
 		{
-			ExplosionAt(centre, radius, allCover);
+			this.centre = centre;
+			this.radius = radius;
 		}
 
-		//TODO: Delegate to Explosion class, which will fully handle cover clipping. This will permit multiple covers being damaged at once.
-		private void ExplosionAt(Vector2 centre, int radius, List<Cover> allCover)
+		//Required as constructors cannot return values
+		public List<Cover> Explode()
 		{
+			return ExplosionAt(centre, radius, coverList);
+		}
+
+		private List<Cover> ExplosionAt(Vector2 centre, int radius, List<Cover> allCover)
+		{
+			List<Cover> newCoverList = new List<Cover>();
+
 			allCover.ForEach(delegate (Cover cover)
 			{
 				Line assignedLine = cover.getAssignedLine();
@@ -80,7 +92,7 @@ namespace Tanks
 					assignedLine.getPoints().Clear();
 					for (int index = 0; index < solution[0].Count; index++)
 					{
-						assignedLine.addPoint(Vector2Ext.ToVector2(solution[0][index]));
+						assignedLine.addPoint(Vector2Ext.ToVector2(solution[0][index])); //TODO: Splitting cover into two results in only one cover. Mass mysteriously disappears.
 					}
 
 					//One more line to connect it all up...
