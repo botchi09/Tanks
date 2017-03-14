@@ -51,22 +51,9 @@ namespace Tanks
 
 		public Vector2? getLineIntersectionPoint(Line line)
 		{
-			Clipper clipper = new Clipper();
-			PolyTree solution = new PolyTree();
-
-			clipper.AddPath(line.getIntPointsPath(), PolyType.ptSubject, false);
-			clipper.AddPath(assignedLine.getIntPointsPath(), PolyType.ptClip, true);
-
-			clipper.Execute(ClipType.ctIntersection, solution);
-
-			if (solution.ChildCount > 0)
-			{
-				return Vector2Ext.ToVector2(solution.Childs[0].Contour[0]);
-			}
-			else
-			{
-				return null;
-			}
+			List<Cover> coverList = new List<Cover>();
+			coverList.Add(this);
+			return line.getCoverIntersectionPoint(coverList);
 
 		}
 
@@ -76,7 +63,7 @@ namespace Tanks
 			throw new NotImplementedException();
 		}
 
-		
+
 
 		public void draw(Texture2D lineTexture, SpriteBatch spriteBatch)
 		{

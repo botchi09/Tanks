@@ -25,9 +25,6 @@ namespace Tanks
 			throw new NotImplementedException();
 		}
 
-		internal static bool DistanceSquared(Vector2 vector2)
-		{
-			throw new NotImplementedException();
-		}
+
 	}
 }

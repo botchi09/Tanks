@@ -79,5 +79,29 @@ namespace Tanks
 			}
 			spriteBatch.End();
 		}
+
+		public Vector2? getCoverIntersectionPoint(List<Cover> coverList)
+		{
+
+				for (int index = 0; index < coverList.Count; index++) //Delegate does not support return breaks
+			{
+				Cover cover = coverList[index];
+				Clipper clipper = new Clipper();
+				PolyTree solution = new PolyTree();
+
+				clipper.AddPath(getIntPointsPath(), PolyType.ptSubject, false);
+				clipper.AddPath(cover.getAssignedLine().getIntPointsPath(), PolyType.ptClip, true);
+
+				clipper.Execute(ClipType.ctIntersection, solution);
+
+				if (solution.ChildCount > 0)
+				{
+					return Vector2Ext.ToVector2(solution.Childs[0].Contour[0]);
+				}
+			}
+
+			return null; //No intersections of any sort detected
+		}
+
 	}
 }
