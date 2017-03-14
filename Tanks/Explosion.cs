@@ -19,7 +19,7 @@ namespace Tanks
 	class Explosion
 	{
 		private int radius;
-		private List<Cover> coverList = new List<Cover>;
+		private List<Cover> coverList = new List<Cover>();
 		private Vector2 centre;
 
 		//http://stackoverflow.com/a/5301049
@@ -50,12 +50,13 @@ namespace Tanks
 		public Explosion(Vector2 centre, int radius, Cover cover)
 		{
 			coverList.Add(cover);
-			
-			
+			this.centre = centre;
+			this.radius = radius;
 		}
 
 		public Explosion(Vector2 centre, int radius, List<Cover> allCover)
 		{
+			this.coverList = allCover;
 			this.centre = centre;
 			this.radius = radius;
 		}
@@ -90,16 +91,27 @@ namespace Tanks
 				if (solution.Count > 0)
 				{
 					assignedLine.getPoints().Clear();
-					for (int index = 0; index < solution[0].Count; index++)
-					{
-						assignedLine.addPoint(Vector2Ext.ToVector2(solution[0][index])); //TODO: Splitting cover into two results in only one cover. Mass mysteriously disappears.
-					}
 
-					//One more line to connect it all up...
-					assignedLine.addPoint(assignedLine.getPoints()[0]);
+					solution.ForEach(delegate (List<IntPoint> coverItem)
+					{
+						Cover newCover = new Tanks.Cover();
+
+						for (int index = 0; index < coverItem.Count; index++)
+						{
+							newCover.getAssignedLine().addPoint(Vector2Ext.ToVector2(coverItem[index]));
+						}
+
+						//One more line to connect it all up...
+						newCover.getAssignedLine().addPoint(newCover.getAssignedLine().getPoints()[0]);
+
+						newCoverList.Add(newCover);
+					});
+					
 				}
 
 			});
+
+			return newCoverList;
 		}
 	}
 

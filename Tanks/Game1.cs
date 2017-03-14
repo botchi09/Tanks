@@ -205,6 +205,7 @@ namespace Tanks
 						else
 						{
 							Explosion explosion = new Explosion(detectedGesture.Position, 100, coverList);
+							coverList = explosion.Explode();
 						}
 							break;
 					case GestureType.Flick:
