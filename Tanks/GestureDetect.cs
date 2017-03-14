@@ -66,13 +66,13 @@ namespace Tanks
 
 					case GestureType.Pinch:
 						System.Diagnostics.Debug.WriteLine("Pinching..");
-
+						
 						detectedGs.GestureType = GestureType.Pinch;
 						return detectedGs;
 
 					case GestureType.PinchComplete:
 						System.Diagnostics.Debug.WriteLine("Pinch complete!");
-
+						
 						detectedGs.GestureType = GestureType.PinchComplete;
 						return detectedGs;
 

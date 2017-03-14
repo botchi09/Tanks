@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Input.Touch;
 using System.Collections.Generic;
 using System;
+using Tanks.Buttons;
 
 namespace Tanks
 {
@@ -32,6 +33,7 @@ namespace Tanks
 		Texture2D tankTexture;
 
 		Texture2D coverTexture;
+		ButtonController buttonController;
 
 		private TanksController tanksController;
 		Cover cover;
@@ -39,6 +41,10 @@ namespace Tanks
 
 		bool coverDrawingMode = true;
 
+		private void switchDrawingMode()
+		{
+			//if (coverDrawingMode)
+		}
 
 		public Game1()
 		{
@@ -117,6 +123,7 @@ namespace Tanks
 
 			coverList.Add(cover);
 
+			buttonController = new ButtonController(tankLineHistory);
 
 			base.Initialize();
 		}
@@ -140,6 +147,13 @@ namespace Tanks
 
 
 			tankTexture = this.Content.Load<Texture2D>("Tank2");
+
+			Dictionary<ButtonType, Texture2D> buttonTextures = new Dictionary<ButtonType, Texture2D>();
+
+			buttonTextures.Add(ButtonType.Undo, this.Content.Load<Texture2D>("UndoButton"));
+			buttonTextures.Add(ButtonType.EndTurn, this.Content.Load<Texture2D>("EndTurnButton"));
+
+			buttonController.setButtonTextures(buttonTextures);
 
 
 		}
@@ -183,135 +197,123 @@ namespace Tanks
 
 			if (detectedGesture.GestureType != GestureType.None)
 			{
-
-				Tank selectedTank = null;
-				if (!coverDrawingMode)
+				bool pushSuccess = buttonController.pushButton(detectedGesture.Position);
+				if (!pushSuccess) //Ensure button presses are not picked up by gesture detection
 				{
-					selectedTank = tanksController.getTankFromTouchPosition(detectedGesture.Position);
-				}
+					Tank selectedTank = null;
+					if (!coverDrawingMode)
+					{
+						selectedTank = tanksController.getTankFromTouchPosition(detectedGesture.Position);
+					}
 
-				switch (detectedGesture.GestureType)
-				{
-					case GestureType.Tap:
-						gestureStateString = "Tap!";
-						if (!coverDrawingMode)
-						{
-							if (lastSelectedTank != null)
-							{
-								lastSelectedTank.saveAndClearWaypoints();
-							}
-							tankFollowLine = new Line(); //Clear the line on tap}
-						}
-						else
-						{
-							Explosion explosion = new Explosion(detectedGesture.Position, 100, coverList);
-							coverList = explosion.Explode();
-						}
-							break;
-					case GestureType.Flick:
-						gestureStateString = "Flick!";
-						break;
-					case GestureType.FreeDrag:
-						gestureStateString = "Dragging...";
-
-						//Ensure the user must drag out from the tank to draw. Each new drag creates a new line.
-						if (detectedGesture.firstDetection)
-						{
-							Vector2 firstPosition = detectedGesture.firstDetectedGesture.Position;
-
+					switch (detectedGesture.GestureType)
+					{
+						case GestureType.Tap:
+							gestureStateString = "Tap!";
 							if (!coverDrawingMode)
 							{
-
-								if (selectedTank != null && suffientDragDistance(selectedTank.getPosition(), firstPosition))
+								if (lastSelectedTank != null)
 								{
-									tankFollowLine = new Line();
-									tankFollowLine.addPoint(selectedTank.getPosition()); //Create illusion of tank closely following line
-									tankFollowLine.addPoint(firstPosition);
-
-									selectedTank.saveAndClearWaypoints();
-									selectedTank.addWaypoint(selectedTank.getPosition()); //Necessary for Undo to place in correct pos
-									selectedTank.addWaypoint(firstPosition);
-
-									lastSelectedTank = selectedTank;
-									lastTouchPosition = firstPosition;
-
-
-									selectedTank.setMovementEnabled(false);
-
+									lastSelectedTank.saveAndClearWaypoints();
 								}
-								else
+								tankFollowLine = new Line(); //Clear the line on tap}
+							}
+							else
+							{
+								Explosion explosion = new Explosion(detectedGesture.Position, 100, coverList);
+								coverList = explosion.Explode();
+							}
+							break;
+						case GestureType.Flick:
+							gestureStateString = "Flick!";
+							break;
+						case GestureType.FreeDrag:
+							gestureStateString = "Dragging...";
+
+							//Ensure the user must drag out from the tank to draw. Each new drag creates a new line.
+							if (detectedGesture.firstDetection)
+							{
+								Vector2 firstPosition = detectedGesture.firstDetectedGesture.Position;
+
+								if (!coverDrawingMode)
 								{
-									lastSelectedTank = null;
+
+									if (selectedTank != null && suffientDragDistance(selectedTank.getPosition(), firstPosition))
+									{
+										tankFollowLine = new Line();
+										tankFollowLine.addPoint(selectedTank.getPosition()); //Create illusion of tank closely following line
+										tankFollowLine.addPoint(firstPosition);
+
+										selectedTank.saveAndClearWaypoints();
+										selectedTank.addWaypoint(selectedTank.getPosition()); //Necessary for Undo to place in correct pos
+										selectedTank.addWaypoint(firstPosition);
+
+									}
+									else
+									{
+										coverLine = new Tanks.Line();
+										coverLine.addPoint(firstPosition);
+									}
+								}
+							}
+
+							Vector2 gesturePosition = detectedGesture.Position;
+							if (!coverDrawingMode)
+							{
+								if (lastSelectedTank != null && suffientDragDistance(lastTouchPosition, gesturePosition))
+								{
+									tankFollowLine.addPoint(gesturePosition);
+									lastSelectedTank.addWaypoint(gesturePosition);
 								}
 							}
 							else
 							{
-								coverLine = new Tanks.Line();
-								coverLine.addPoint(firstPosition);
+								coverLine.addPoint(detectedGesture.Position);
 							}
-						}
 
-						Vector2 gesturePosition = detectedGesture.Position;
-						if (!coverDrawingMode)
-						{
-							if (lastSelectedTank != null && suffientDragDistance(lastTouchPosition, gesturePosition))
+							lastTouchPosition = gesturePosition;
+
+							break;
+
+						case GestureType.DragComplete:
+							gestureStateString = "Drag complete!";
+							if (!coverDrawingMode)
 							{
-								tankFollowLine.addPoint(gesturePosition);
-								lastSelectedTank.addWaypoint(gesturePosition);
+								if (lastSelectedTank != null)
+								{
+									lastSelectedTank.setMovementEnabled(true);
+								}
 							}
-						}
-						else
-						{
-							coverLine.addPoint(detectedGesture.Position);
-						}
-
-						lastTouchPosition = gesturePosition;
-
-						break;
-					case GestureType.DragComplete:
-						gestureStateString = "Drag complete!";
-						if (!coverDrawingMode)
-						{
-							if (lastSelectedTank != null)
+							else
 							{
-								lastSelectedTank.setMovementEnabled(true);
+								coverLine.addPoint(coverLine.getPoints()[0]);
+								Cover cover = new Cover();
+								cover.setPoints(coverLine.getPoints());
+								coverList.Add(cover);
 							}
-						}
-						else
-						{
-							coverLine.addPoint(coverLine.getPoints()[0]);
-							Cover cover = new Cover();
-							cover.setPoints(coverLine.getPoints());
-							coverList.Add(cover);
-						}
 
-						break;
-					case GestureType.Pinch:
-						gestureStateString = "Pinching...";
-						undoLastAction();
-						break;
-					case GestureType.PinchComplete:
-						//Fix issue where pinchcomplete detected as flick
-						gestureStateString = "Pinch complete!";
-						break;
+							break;
+						case GestureType.Pinch:
+							gestureStateString = "Pinching...";
+							break;
+						case GestureType.PinchComplete:
+							//Fix issue where pinchcomplete detected as flick
+							gestureStateString = "Pinch complete!";
+							coverDrawingMode = !coverDrawingMode; //TODO: Refactor Game1 into MVC. Problems rearing their ugly head!
+							break;
+					}
 				}
 			}
 			else
 			{
 				//gestureStateString = "No gesture detected.";
 			}
-
-			float timeStep = (float)gameTime.ElapsedGameTime.TotalSeconds;
-
-			/*if (tankFollowLine != null)
-			{
-				selectedTank.update(timeStep);
-			}*/
+			float timeStep = (float)gameTime.ElapsedGameTime.TotalSeconds; //Necessary so tanks move framerate-independently
 			tanksController.update(timeStep);
-
 
 			base.Update(gameTime);
 		}
+
 
 
 		private void undoLastAction()
@@ -367,7 +369,12 @@ namespace Tanks
 
 			spriteBatch.End();
 
+			buttonController.draw(spriteBatch);
+
+
+
 			base.Draw(gameTime);
 		}
 	}
 }
+
