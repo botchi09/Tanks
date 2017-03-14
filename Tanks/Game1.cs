@@ -41,10 +41,6 @@ namespace Tanks
 
 		bool coverDrawingMode = true;
 
-		private void switchDrawingMode()
-		{
-			//if (coverDrawingMode)
-		}
 
 		public Game1()
 		{
@@ -248,12 +244,22 @@ namespace Tanks
 										selectedTank.addWaypoint(selectedTank.getPosition()); //Necessary for Undo to place in correct pos
 										selectedTank.addWaypoint(firstPosition);
 
+										lastSelectedTank = selectedTank;
+										lastTouchPosition = firstPosition;
+
+
+										selectedTank.setMovementEnabled(false);
+
 									}
 									else
 									{
-										coverLine = new Tanks.Line();
-										coverLine.addPoint(firstPosition);
+										lastSelectedTank = null;
 									}
+								}
+								else
+								{
+									coverLine = new Tanks.Line();
+									coverLine.addPoint(firstPosition);
 								}
 							}
 
@@ -274,7 +280,6 @@ namespace Tanks
 							lastTouchPosition = gesturePosition;
 
 							break;
-
 						case GestureType.DragComplete:
 							gestureStateString = "Drag complete!";
 							if (!coverDrawingMode)
@@ -295,25 +300,45 @@ namespace Tanks
 							break;
 						case GestureType.Pinch:
 							gestureStateString = "Pinching...";
+							
 							break;
 						case GestureType.PinchComplete:
 							//Fix issue where pinchcomplete detected as flick
 							gestureStateString = "Pinch complete!";
-							coverDrawingMode = !coverDrawingMode; //TODO: Refactor Game1 into MVC. Problems rearing their ugly head!
+							switchDrawingMode();
 							break;
 					}
 				}
+				else
+				{
+					//gestureStateString = "No gesture detected.";
+				}
 			}
-			else
+			float timeStep = (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+			/*if (tankFollowLine != null)
 			{
-				//gestureStateString = "No gesture detected.";
-			}
-			float timeStep = (float)gameTime.ElapsedGameTime.TotalSeconds; //Necessary so tanks move framerate-independently
+				selectedTank.update(timeStep);
+			}*/
 			tanksController.update(timeStep);
+
 
 			base.Update(gameTime);
 		}
 
+		private void switchDrawingMode()
+		{
+			if (coverDrawingMode)
+			{
+				coverDrawingMode = false;
+				lastSelectedTank = null;
+
+			}
+			else
+			{
+				coverDrawingMode = true;
+			}
+		}
 
 
 		private void undoLastAction()
