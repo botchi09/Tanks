@@ -27,16 +27,28 @@ namespace Tanks
 		//Define buttons here.
 		private void initButtons()
 		{
-			Button undoButton = new Button(ButtonType.Undo, textures[ButtonType.Undo], this, new Vector2(800, 700));
-			Button endTurnButton = new Button(ButtonType.EndTurn, textures[ButtonType.EndTurn], this, new Vector2(800, 900));
+			int ingameButtonWidthHeight = 100; //Hardcoding this is bad, but currently the best solution
+
+			Button undoButton = new Button(ButtonType.Undo, ingameButtonWidthHeight, ingameButtonWidthHeight, this, new Vector2(1700, 700));
+			Button endTurnButton = new Button(ButtonType.EndTurn, ingameButtonWidthHeight, ingameButtonWidthHeight, this, new Vector2(1700, 900));
 
 			buttons.Add(ButtonType.Undo, undoButton);
-			buttons.Add(ButtonType.Undo, endTurnButton);
+			buttons.Add(ButtonType.EndTurn, endTurnButton);
 		}
 
-		public ButtonController(Dictionary<ButtonType, Texture2D> textures, TankLineHistory tankLineHistory)
+		public void showIngameButtons()
+		{
+			buttons[ButtonType.Undo].show();
+			buttons[ButtonType.EndTurn].show();
+		}
+		
+		public void setButtonTextures(Dictionary<ButtonType, Texture2D> textures)
 		{
 			this.textures = textures;
+		}
+
+		public ButtonController(TankLineHistory tankLineHistory)
+		{
 			this.tankLineHistory = tankLineHistory;
 			initButtons();
 		}
@@ -44,21 +56,53 @@ namespace Tanks
 		//Returns true if a button is pressed.
 		public bool pushButton(Vector2 point)
 		{
-
+			//Buttons will have no overlap, so tank style proximity detection is unneeded.
+			foreach (KeyValuePair<ButtonType, Button> entry in buttons)
+			{
+				if (entry.Value.vectorInTouchRegion(point))
+				{
+					entry.Value.buttonPressed();
+					return true;
+				}
+			}
 			return false;
 		}
 
+		//Ideally we would have XML to handle callbacks here. This will suffice for the project's scope.
 		public void buttonPressed(ButtonType buttonEnum)
 		{
-			if (buttonEnum == ButtonType.Undo)
+			switch (buttonEnum)
 			{
-				tankLineHistory.undoLast();
+				case ButtonType.Undo:
+					tankLineHistory.undoLast();
+					System.Diagnostics.Debug.WriteLine("Touched undo button");
+					break;
+				case ButtonType.EndTurn:
+					//TODO: Actually bind this to an "end turn"
+					System.Diagnostics.Debug.WriteLine("Touched end turn button");
+					break;
 			}
 		}
 
 		public void buttonReleased(ButtonType buttonEnum)
 		{
 			throw new NotImplementedException();
+		}
+
+
+
+		public void draw(SpriteBatch spriteBatch)
+		{
+			foreach (KeyValuePair<ButtonType, Button> entry in buttons)
+			{
+				spriteBatch.Begin();
+				spriteBatch.Draw(textures[entry.Key], entry.Value.getPosition(), null, Color.White,
+								 0,
+								 new Vector2(0, 0),
+								 1,
+								 SpriteEffects.None, 0f);
+				spriteBatch.End();
+			}
 		}
 	}
 }

@@ -26,6 +26,11 @@ namespace Tanks
 		private ButtonType buttonEnum;
 		private Texture2D texture;
 
+		public Vector2 getPosition()
+		{
+			return position;
+		}
+
 		public void setActive(bool active)
 		{
 			this.active = active;
@@ -45,24 +50,21 @@ namespace Tanks
 		}
 
 		//TODO: Decide if w/h should be texture2d agnostic
-		public Button(ButtonType buttonEnum, Texture2D texture, ButtonController buttonController, Vector2 position)
+		public Button(ButtonType buttonEnum, int width, int height, ButtonController buttonController, Vector2 position)
 		{
 			this.position = position;
-			//this.width = width;
-			//this.height = height;
-			this.width = texture.Width;
-			this.height = texture.Height;
+			this.width = width;
+			this.height = height;
 			this.buttonEnum = buttonEnum;
-			this.texture = texture;
 			this.buttonController = buttonController;
 		}
 
 		public bool vectorInTouchRegion(Vector2 vector)
 		{
-			return (position.X >= vector.X &&
-				position.X <= vector.X + width &&
-				position.Y >= vector.Y &&
-				position.Y <= vector.Y + height);
+			return (vector.X >= position.X &&
+				vector.X <= position.X + width &&
+				vector.Y >= position.Y &&
+				vector.Y <= position.Y + height);
 		}
 
 		public void buttonPressed()
@@ -75,15 +77,6 @@ namespace Tanks
 			buttonController.buttonReleased(buttonEnum);
 		}
 
-		public void draw(SpriteBatch spriteBatch)
-		{
-			spriteBatch.Begin();
-			spriteBatch.Draw(this.texture, position, null, Color.White,
-							 0,
-							 new Vector2(0, 0),
-							 1,
-							 SpriteEffects.None, 0f);
-			spriteBatch.End();
-		}
+		
 	}
 }

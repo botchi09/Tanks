@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Input.Touch;
 using System.Collections.Generic;
 using System;
+using Tanks.Buttons;
 
 namespace Tanks
 {
@@ -30,6 +31,8 @@ namespace Tanks
 		Texture2D oldLineTexture;
 
 		Texture2D tankTexture;
+
+		ButtonController buttonController;
 
 		private TanksController tanksController;
 		Cover cover;
@@ -109,6 +112,8 @@ namespace Tanks
 				Explosion explosion = new Explosion((Vector2)intersectionPoint, 50, cover);
 			}
 
+			buttonController = new ButtonController(tankLineHistory);
+
 			base.Initialize();
 		}
 
@@ -128,6 +133,13 @@ namespace Tanks
 			oldLineTexture = this.Content.Load<Texture2D>("OldLineTexture");
 
 			tankTexture = this.Content.Load<Texture2D>("Tank2");
+
+			Dictionary<ButtonType, Texture2D> buttonTextures = new Dictionary<ButtonType, Texture2D>();
+
+			buttonTextures.Add(ButtonType.Undo, this.Content.Load<Texture2D>("UndoButton"));
+			buttonTextures.Add(ButtonType.EndTurn, this.Content.Load<Texture2D>("EndTurnButton"));
+
+			buttonController.setButtonTextures(buttonTextures);
 
 
 		}
@@ -170,97 +182,105 @@ namespace Tanks
 			DetectedGesture detectedGesture = gestureDetect.getGesture(gameTime.TotalGameTime.TotalMilliseconds); //May be null before game space is fully initialized
 			if (detectedGesture != null)
 			{
-				Tank selectedTank = tanksController.getTankFromTouchPosition(detectedGesture.Position);
+				bool pushSuccess = buttonController.pushButton(detectedGesture.Position);
 
 
-				if (detectedGesture.GestureType != GestureType.None)
+				if (!pushSuccess) //Ensure button presses are not picked up by gesture detection
 				{
+					Tank selectedTank = tanksController.getTankFromTouchPosition(detectedGesture.Position);
 
-					switch (detectedGesture.GestureType)
+					if (detectedGesture.GestureType != GestureType.None)
 					{
-						case GestureType.Tap:
-							gestureStateString = "Tap!";
-							if (lastSelectedTank != null)
-							{
-								lastSelectedTank.saveAndClearWaypoints();
-							}
-							tankFollowLine = new Line(); //Clear the line on tap
-							break;
-						case GestureType.Flick:
-							gestureStateString = "Flick!";
-							break;
-						case GestureType.FreeDrag:
-							gestureStateString = "Dragging...";
 
-							//Ensure the user must drag out from the tank to draw. Each new drag creates a new line.
-							if (detectedGesture.firstDetection)
-							{
-								Vector2 firstPosition = detectedGesture.firstDetectedGesture.Position;
-								if (selectedTank != null && suffientDragDistance(selectedTank.getPosition(), firstPosition))
+						switch (detectedGesture.GestureType)
+						{
+							case GestureType.Tap:
+								gestureStateString = "Tap!";
+								if (lastSelectedTank != null)
 								{
-									tankFollowLine = new Line();
-									tankFollowLine.addPoint(selectedTank.getPosition()); //Create illusion of tank closely following line
-									tankFollowLine.addPoint(firstPosition);
-
-									selectedTank.saveAndClearWaypoints();
-									selectedTank.addWaypoint(selectedTank.getPosition()); //Necessary for Undo to place in correct pos
-									selectedTank.addWaypoint(firstPosition);
-
-									lastSelectedTank = selectedTank;
-									lastTouchPosition = firstPosition;
-
-									selectedTank.setMovementEnabled(false);
-
+									lastSelectedTank.saveAndClearWaypoints();
 								}
-								else
+								tankFollowLine = new Line(); //Clear the line on tap
+								break;
+							case GestureType.Flick:
+								gestureStateString = "Flick!";
+								break;
+							case GestureType.FreeDrag:
+								gestureStateString = "Dragging...";
+
+								//Ensure the user must drag out from the tank to draw. Each new drag creates a new line.
+								if (detectedGesture.firstDetection)
 								{
-									lastSelectedTank = null;
+									Vector2 firstPosition = detectedGesture.firstDetectedGesture.Position;
+									if (selectedTank != null && suffientDragDistance(selectedTank.getPosition(), firstPosition))
+									{
+										tankFollowLine = new Line();
+										tankFollowLine.addPoint(selectedTank.getPosition()); //Create illusion of tank closely following line
+										tankFollowLine.addPoint(firstPosition);
+
+										selectedTank.saveAndClearWaypoints();
+										selectedTank.addWaypoint(selectedTank.getPosition()); //Necessary for Undo to place in correct pos
+										selectedTank.addWaypoint(firstPosition);
+
+										lastSelectedTank = selectedTank;
+										lastTouchPosition = firstPosition;
+
+										selectedTank.setMovementEnabled(false);
+
+									}
+									else
+									{
+										lastSelectedTank = null;
+									}
 								}
-							}
 
-							Vector2 gesturePosition = detectedGesture.Position;
-							if (lastSelectedTank != null && suffientDragDistance(lastTouchPosition, gesturePosition))
-							{
-								tankFollowLine.addPoint(gesturePosition);
-								lastSelectedTank.addWaypoint(gesturePosition);
-							}
+								Vector2 gesturePosition = detectedGesture.Position;
+								if (lastSelectedTank != null && suffientDragDistance(lastTouchPosition, gesturePosition))
+								{
+									tankFollowLine.addPoint(gesturePosition);
+									lastSelectedTank.addWaypoint(gesturePosition);
+								}
 
-							lastTouchPosition = gesturePosition;
+								lastTouchPosition = gesturePosition;
 
-							break;
-						case GestureType.DragComplete:
-							gestureStateString = "Drag complete!";
-							if (lastSelectedTank != null)
-							{
-								lastSelectedTank.setMovementEnabled(true);
-							}
-							break;
-						case GestureType.Pinch:
-							gestureStateString = "Pinching...";
-							undoLastAction();
-							break;
-						case GestureType.PinchComplete:
-							//Fix issue where pinchcomplete detected as flick
-							gestureStateString = "Pinch complete!";
-							break;
+								break;
+							case GestureType.DragComplete:
+								gestureStateString = "Drag complete!";
+								if (lastSelectedTank != null)
+								{
+									lastSelectedTank.setMovementEnabled(true);
+								}
+								break;
+							case GestureType.Pinch:
+								gestureStateString = "Pinching...";
+								break;
+							case GestureType.PinchComplete:
+								//Fix issue where pinchcomplete detected as flick
+								gestureStateString = "Pinch complete!";
+								break;
+						}
 					}
+					else
+					{
+						//gestureStateString = "No gesture detected.";
+					}
+
+
+					/*if (tankFollowLine != null)
+					{
+						selectedTank.update(timeStep);
+					}*/
+
+
 				}
-				else
-				{
-					//gestureStateString = "No gesture detected.";
-				}
-
-				float timeStep = (float)gameTime.ElapsedGameTime.TotalSeconds;
-
-				/*if (tankFollowLine != null)
-				{
-					selectedTank.update(timeStep);
-				}*/
-				tanksController.update(timeStep);
 
 
-				base.Update(gameTime);
 			}
+
+			float timeStep = (float)gameTime.ElapsedGameTime.TotalSeconds; //Necessary so tanks move framerate-independently
+			tanksController.update(timeStep);
+
+			base.Update(gameTime);
 
 		}
 
@@ -296,6 +316,10 @@ namespace Tanks
 			spriteBatch.DrawString(font, gestureStateString, new Vector2(300, 300), Color.Black);
 
 			spriteBatch.End();
+
+			buttonController.draw(spriteBatch);
+
+
 
 			base.Draw(gameTime);
 		}
