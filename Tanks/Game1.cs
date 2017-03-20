@@ -277,6 +277,7 @@ namespace Tanks
 								coverLine.addPoint(detectedGesture.Position);
 							}
 
+
 							lastTouchPosition = gesturePosition;
 
 							break;
