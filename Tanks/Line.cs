@@ -57,6 +57,18 @@ namespace Tanks
 			return convertedPoints;
 		}
 
+		public void setIntPointsPath(Path intPointsPath)
+		{
+			List<Vector2> convertedPoints = new List<Vector2>();
+
+			for (int index = 0; index < intPointsPath.Count; index++)
+			{
+				convertedPoints.Add(Vector2Ext.ToVector2(intPointsPath[index]));
+			}
+
+			points = convertedPoints;
+		}
+
 		//http://gamedev.stackexchange.com/a/26027
 		private void DrawLine(SpriteBatch spriteBatch, Texture2D texture, Vector2 start, Vector2 end)
 		{
@@ -83,7 +95,7 @@ namespace Tanks
 		public Vector2? getCoverIntersectionPoint(List<Cover> coverList)
 		{
 
-				for (int index = 0; index < coverList.Count; index++) //Delegate does not support return breaks
+			for (int index = 0; index < coverList.Count; index++) //Delegate does not support return breaks
 			{
 				Cover cover = coverList[index];
 				Clipper clipper = new Clipper();

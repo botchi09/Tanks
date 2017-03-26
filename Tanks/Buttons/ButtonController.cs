@@ -20,7 +20,13 @@ namespace Tanks
 		Dictionary<ButtonType, Button> buttons = new Dictionary<ButtonType, Button>();
 		Dictionary<ButtonType, Texture2D> textures;
 
-		TankLineHistory tankLineHistory; //Required for undo button functionality
+		UserInterfaceController userInterfaceController;
+
+		public ButtonController(UserInterfaceController userInterfaceController)
+		{
+			this.userInterfaceController = userInterfaceController;
+			initButtons();
+		}
 
 		//TODO: Define functions permitting main prog ability to show and hide different button groups
 
@@ -47,12 +53,7 @@ namespace Tanks
 			this.textures = textures;
 		}
 
-		public ButtonController(TankLineHistory tankLineHistory)
-		{
-			this.tankLineHistory = tankLineHistory;
-			initButtons();
-		}
-
+		//TODO: BUTTON PRESS ANIMATION
 		//Returns true if a button is pressed.
 		public bool pushButton(Vector2 point)
 		{
@@ -74,11 +75,11 @@ namespace Tanks
 			switch (buttonEnum)
 			{
 				case ButtonType.Undo:
-					tankLineHistory.undoLast();
+					userInterfaceController.undoLast();
 					System.Diagnostics.Debug.WriteLine("Touched undo button");
 					break;
 				case ButtonType.EndTurn:
-					//TODO: Actually bind this to an "end turn"
+					userInterfaceController.endTurn();
 					System.Diagnostics.Debug.WriteLine("Touched end turn button");
 					break;
 			}

@@ -10,13 +10,10 @@ using Android.Runtime;
 using Android.Views;
 using Android.Widget;
 
-namespace Tanks.Buttons
+namespace Tanks
 {
-	enum ButtonType
+	class GameState
 	{
-		Undo,
-		EndTurn,
-		UndoPressed,
-		EndTurnPressed
+		
 	}
 }

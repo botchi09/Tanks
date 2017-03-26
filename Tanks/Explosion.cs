@@ -67,6 +67,7 @@ namespace Tanks
 			return ExplosionAt(centre, radius, coverList);
 		}
 
+		//TODO: MUST NOT MODIFY LINES INDIVIDUALLY! PASS COVER AS GROUP TO CLIPPER!
 		private List<Cover> ExplosionAt(Vector2 centre, int radius, List<Cover> allCover)
 		{
 			List<Cover> newCoverList = new List<Cover>();

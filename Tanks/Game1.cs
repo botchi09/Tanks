@@ -19,28 +19,29 @@ namespace Tanks
 		SpriteBatch spriteBatch;
 		private SpriteFont font;
 
-		private Line tankFollowLine;
-		private TankLineHistory tankLineHistory;
+		private Texture2D lineTexture;
+		private Texture2D oldLineTexture;
+		private Texture2D tankTexture;
+		private Texture2D coverTexture;
 
-		Line coverLine;
-		Line intersectionLine;
-		Line shouldNotIntersect;
-
-
-		Texture2D lineTexture;
-		Texture2D oldLineTexture;
-
-		Texture2D tankTexture;
-
-		Texture2D coverTexture;
-		ButtonController buttonController;
-
+		private ButtonController buttonController;
+		private UserInterfaceController userInterfaceController;
 		private TanksController tanksController;
-		Cover cover;
-		List<Cover> coverList = new List<Cover>();
+		private GestureController gestureController;
+		private CoverController coverController;
 
-		bool coverDrawingMode = true;
+		private TanksModel tanksModel;
+		private GameStateModel gameStateModel;
 
+		private TanksView tanksView;
+
+		private GestureDetect gestureDetect;
+
+
+		private Tank getLastSelectedTank()
+		{
+			return tanksModel.lastSelectedTank;
+		}
 
 		public Game1()
 		{
@@ -56,8 +57,6 @@ namespace Tanks
 			TargetElapsedTime = System.TimeSpan.FromMilliseconds(((float)1 / 60) * 1000); //60 fps
 		}
 
-		GestureDetect gestureDetect;
-		private string gestureStateString = "No gesture yet...";
 
 		/// <summary>
 		/// Allows the game to perform any initialization it needs to before starting to run.
@@ -67,59 +66,28 @@ namespace Tanks
 		/// </summary>
 		protected override void Initialize()
 		{
-			tankFollowLine = new Line();
-			tankFollowLine.addPoint(new Vector2(800, 700));
-			tankFollowLine.addPoint(new Vector2(600, 500));
-			tankFollowLine.addPoint(new Vector2(300, 900));
 
-			//tank.setWaypoints(tankFollowLine.getPoints());
+			tanksModel = new TanksModel();
+			gameStateModel = new GameStateModel();
+
 
 			gestureDetect = new GestureDetect();
 			TouchPanel.EnabledGestures = GestureType.Tap | GestureType.FreeDrag | GestureType.DragComplete | GestureType.Pinch | GestureType.PinchComplete;
 
-			tankLineHistory = new TankLineHistory();
+			tanksModel.tankLineHistory = new TankLineHistory();
+			userInterfaceController = new UserInterfaceController(this);
 
-			tankFollowLine = new Tanks.Line();
-			coverLine = new Line();
-			coverLine.addPoint(new Vector2(100, 100));
-			coverLine.addPoint(new Vector2(200, 110));
-			coverLine.addPoint(new Vector2(300, 120));
-			coverLine.addPoint(new Vector2(400, 130));
-			coverLine.addPoint(new Vector2(500, 150));
-			coverLine.addPoint(new Vector2(450, 600));
-			coverLine.addPoint(new Vector2(300, 580));
-			coverLine.addPoint(new Vector2(200, 590));
-			coverLine.addPoint(new Vector2(105, 600));
-			coverLine.addPoint(new Vector2(110, 400));
-			coverLine.addPoint(new Vector2(90, 200));
-			coverLine.addPoint(new Vector2(100, 100));
+			tanksController = new TanksController(tanksModel);
+			tanksController.createTank(new Vector2(100, 100), tanksModel.tankLineHistory);
+			tanksController.createTank(new Vector2(300, 100), tanksModel.tankLineHistory);
+			tanksController.createTank(new Vector2(1000, 600), tanksModel.tankLineHistory);
 
-			tanksController = new TanksController();
-			tanksController.createTank(new Vector2(100, 100), tankLineHistory);
-			tanksController.createTank(new Vector2(300, 100), tankLineHistory);
-			tanksController.createTank(new Vector2(1000, 600), tankLineHistory);
-			intersectionLine = new Line();
-			intersectionLine.addPoint(new Vector2(50, 50));
-			intersectionLine.addPoint(new Vector2(300, 300));
+			coverController = new CoverController(tanksModel);
 
-			shouldNotIntersect = new Line();
-			shouldNotIntersect.addPoint(new Vector2(700, 700));
-			shouldNotIntersect.addPoint(new Vector2(500, 700));
+			buttonController = new ButtonController(userInterfaceController);
+			gestureController = new GestureController(tanksModel, gameStateModel, tanksController, coverController, buttonController, gestureDetect);
 
-			cover = new Cover();
-			cover.setPoints(coverLine.getPoints());
-
-
-			Vector2? intersectionPoint = cover.getLineIntersectionPoint(intersectionLine);
-
-			if (intersectionPoint != null)
-			{
-				Explosion explosion = new Explosion((Vector2)intersectionPoint, 50, cover);
-			}
-
-			coverList.Add(cover);
-
-			buttonController = new ButtonController(tankLineHistory);
+			tanksView = new TanksView(tanksModel, gameStateModel, tanksController, coverController, buttonController);
 
 			base.Initialize();
 		}
@@ -134,24 +102,27 @@ namespace Tanks
 			spriteBatch = new SpriteBatch(GraphicsDevice);
 
 			// TODO: use this.Content to load your game content here
-			font = this.Content.Load<SpriteFont>("TanksBodyFont");
+			font = Content.Load<SpriteFont>("TanksBodyFont");
 
-			lineTexture = this.Content.Load<Texture2D>("LineTexture");
-			oldLineTexture = this.Content.Load<Texture2D>("OldLineTexture");
+			lineTexture = Content.Load<Texture2D>("LineTexture");
+			oldLineTexture = Content.Load<Texture2D>("OldLineTexture");
 
-			coverTexture = this.Content.Load<Texture2D>("CoverTexture");
+			coverTexture = Content.Load<Texture2D>("CoverTexture");
 
 
-			tankTexture = this.Content.Load<Texture2D>("Tank2");
+			tankTexture = Content.Load<Texture2D>("Tank2");
 
 			Dictionary<ButtonType, Texture2D> buttonTextures = new Dictionary<ButtonType, Texture2D>();
 
 			buttonTextures.Add(ButtonType.Undo, this.Content.Load<Texture2D>("UndoButton"));
 			buttonTextures.Add(ButtonType.EndTurn, this.Content.Load<Texture2D>("EndTurnButton"));
+			buttonTextures.Add(ButtonType.UndoPressed, this.Content.Load<Texture2D>("UndoButtonPressed"));
+			buttonTextures.Add(ButtonType.EndTurnPressed, this.Content.Load<Texture2D>("EndTurnButtonPressed"));
+
 
 			buttonController.setButtonTextures(buttonTextures);
 
-
+			tanksView.setDrawTextures(lineTexture, oldLineTexture, tankTexture, coverTexture);
 		}
 
 		/// <summary>
@@ -163,19 +134,6 @@ namespace Tanks
 			// TODO: Unload any non ContentManager content here
 		}
 
-
-		int minDragDist = 10;
-
-		//Minimise number of points by requiring a minimum drag distance before new waypoint is created
-		private bool suffientDragDistance(Vector2 point1, Vector2 point2)
-		{
-			//TODO: Fix unresponsiveness as result of this code
-			return true;
-			//return UtilityFuncs.DistanceSquared(point1, point2) > (minDragDist * minDragDist);
-		}
-
-		Tank lastSelectedTank = null;
-		Vector2 lastTouchPosition;
 
 		/// <summary>
 		/// Allows the game to run logic such as updating the world,
@@ -189,132 +147,7 @@ namespace Tanks
 
 
 			// TODO: Add your update logic here
-			DetectedGesture detectedGesture = gestureDetect.getGesture(gameTime.TotalGameTime.TotalMilliseconds); //May be null before game space is fully initialized
-
-			if (detectedGesture.GestureType != GestureType.None)
-			{
-				bool pushSuccess = buttonController.pushButton(detectedGesture.Position);
-				if (!pushSuccess) //Ensure button presses are not picked up by gesture detection
-				{
-					Tank selectedTank = null;
-					if (!coverDrawingMode)
-					{
-						selectedTank = tanksController.getTankFromTouchPosition(detectedGesture.Position);
-					}
-
-					switch (detectedGesture.GestureType)
-					{
-						case GestureType.Tap:
-							gestureStateString = "Tap!";
-							if (!coverDrawingMode)
-							{
-								if (lastSelectedTank != null)
-								{
-									lastSelectedTank.saveAndClearWaypoints();
-								}
-								tankFollowLine = new Line(); //Clear the line on tap}
-							}
-							else
-							{
-								Explosion explosion = new Explosion(detectedGesture.Position, 100, coverList);
-								coverList = explosion.Explode();
-							}
-							break;
-						case GestureType.Flick:
-							gestureStateString = "Flick!";
-							break;
-						case GestureType.FreeDrag:
-							gestureStateString = "Dragging...";
-
-							//Ensure the user must drag out from the tank to draw. Each new drag creates a new line.
-							if (detectedGesture.firstDetection)
-							{
-								Vector2 firstPosition = detectedGesture.firstDetectedGesture.Position;
-
-								if (!coverDrawingMode)
-								{
-
-									if (selectedTank != null && suffientDragDistance(selectedTank.getPosition(), firstPosition))
-									{
-										tankFollowLine = new Line();
-										tankFollowLine.addPoint(selectedTank.getPosition()); //Create illusion of tank closely following line
-										tankFollowLine.addPoint(firstPosition);
-
-										selectedTank.saveAndClearWaypoints();
-										selectedTank.addWaypoint(selectedTank.getPosition()); //Necessary for Undo to place in correct pos
-										selectedTank.addWaypoint(firstPosition);
-
-										lastSelectedTank = selectedTank;
-										lastTouchPosition = firstPosition;
-
-
-										selectedTank.setMovementEnabled(false);
-
-									}
-									else
-									{
-										lastSelectedTank = null;
-									}
-								}
-								else
-								{
-									coverLine = new Tanks.Line();
-									coverLine.addPoint(firstPosition);
-								}
-							}
-
-							Vector2 gesturePosition = detectedGesture.Position;
-							if (!coverDrawingMode)
-							{
-								if (lastSelectedTank != null && suffientDragDistance(lastTouchPosition, gesturePosition))
-								{
-									tankFollowLine.addPoint(gesturePosition);
-									lastSelectedTank.addWaypoint(gesturePosition);
-								}
-							}
-							else
-							{
-								coverLine.addPoint(detectedGesture.Position);
-							}
-
-
-							lastTouchPosition = gesturePosition;
-
-							break;
-						case GestureType.DragComplete:
-							gestureStateString = "Drag complete!";
-							if (!coverDrawingMode)
-							{
-								if (lastSelectedTank != null)
-								{
-									lastSelectedTank.setMovementEnabled(true);
-								}
-							}
-							else
-							{
-								coverLine.addPoint(coverLine.getPoints()[0]);
-								Cover cover = new Cover();
-								cover.setPoints(coverLine.getPoints());
-								coverList.Add(cover);
-							}
-
-							break;
-						case GestureType.Pinch:
-							gestureStateString = "Pinching...";
-							
-							break;
-						case GestureType.PinchComplete:
-							//Fix issue where pinchcomplete detected as flick
-							gestureStateString = "Pinch complete!";
-							switchDrawingMode();
-							break;
-					}
-				}
-				else
-				{
-					//gestureStateString = "No gesture detected.";
-				}
-			}
+			gestureController.update(gameTime);
 			float timeStep = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
 			/*if (tankFollowLine != null)
@@ -323,41 +156,44 @@ namespace Tanks
 			}*/
 			tanksController.update(timeStep);
 
-
 			base.Update(gameTime);
 		}
 
+
+
 		private void switchDrawingMode()
 		{
-			if (coverDrawingMode)
+			if (gameStateModel.coverDrawingMode)
 			{
-				coverDrawingMode = false;
-				lastSelectedTank = null;
+				gameStateModel.coverDrawingMode = false;
+				tanksModel.lastSelectedTank = null;
 
 			}
 			else
 			{
-				coverDrawingMode = true;
+				gameStateModel.coverDrawingMode = true;
 			}
 		}
 
-
-		private void undoLastAction()
+		public void endTurn()
 		{
-			if (!coverDrawingMode)
+			//TODO: Forward end turn event to game state.
+			switchDrawingMode();
+		}
+
+		public void undoLastAction()
+		{
+			if (!gameStateModel.coverDrawingMode)
 			{
-				if (lastSelectedTank != null)
+				if (getLastSelectedTank() != null)
 				{
-					lastSelectedTank.saveAndClearWaypoints();
+					getLastSelectedTank().saveAndClearWaypoints();
 				}
-				tankLineHistory.undoLast();
+				tanksModel.tankLineHistory.undoLast();
 			}
 			else
 			{
-				if (coverList.Count > 0)
-				{
-					coverList.RemoveAt(coverList.Count - 1);
-				}
+				coverController.removeLastCover();
 			}
 		}
 
@@ -371,31 +207,8 @@ namespace Tanks
 
 			// TODO: Add your drawing code here
 
-			if (!coverDrawingMode)
-			{
-				tankFollowLine.drawLines(lineTexture, spriteBatch);
-			}
-			else
-			{
-				coverLine.drawLines(lineTexture, spriteBatch);
-			}
-			tanksController.draw(tankTexture, oldLineTexture, spriteBatch);
-			tankLineHistory.draw(oldLineTexture, spriteBatch);
-			intersectionLine.drawLines(lineTexture, spriteBatch);
+			tanksView.draw(spriteBatch, gameTime);
 
-			coverList.ForEach(delegate (Cover coverItem)
-			{
-				coverItem.draw(coverTexture, spriteBatch);
-			});
-
-
-			spriteBatch.Begin();
-
-			spriteBatch.DrawString(font, gestureStateString, new Vector2(300, 300), Color.Black);
-
-			spriteBatch.End();
-
-			buttonController.draw(spriteBatch);
 
 
 

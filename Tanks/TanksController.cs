@@ -16,21 +16,26 @@ namespace Tanks
 {
 	class TanksController
 	{
-		private List<Tank> tanks = new List<Tank>();
+		TanksModel tanksModel;
+
+		public TanksController(TanksModel tanksModel)
+		{
+			this.tanksModel = tanksModel;
+		}
 
 		public void setTanks(List<Tank> tanks)
 		{
-			this.tanks = tanks;
+			this.tanksModel.tanks = tanks;
 		}
 
 		public List<Tank> getTanks()
 		{
-			return tanks;
+			return tanksModel.tanks;
 		}
 
 		public void addTank(Tank tank)
 		{
-			tanks.Add(tank);
+			tanksModel.tanks.Add(tank);
 		}
 
 		public void createTank(Vector2 position, TankLineHistory tankLineHistory)
@@ -51,7 +56,7 @@ namespace Tanks
 		{
 			List<Tank> possibleTanks = new List<Tank>();
 
-			tanks.ForEach(delegate (Tank tank)
+			getTanks().ForEach(delegate (Tank tank)
 			{
 				if (UtilityFuncs.DistanceSquared(tank.getPosition(), point) < (tankTouchRadius * tankTouchRadius))
 				{
@@ -85,7 +90,7 @@ namespace Tanks
 
 		public void update(float timeStep)
 		{
-			tanks.ForEach(delegate (Tank tank)
+			getTanks().ForEach(delegate (Tank tank)
 			{
 				tank.update(timeStep);
 			});
@@ -93,7 +98,7 @@ namespace Tanks
 
 		public void draw(Texture2D tankTexture, Texture2D tankOldLineTexture, SpriteBatch spriteBatch)
 		{
-			tanks.ForEach(delegate (Tank tank)
+			getTanks().ForEach(delegate (Tank tank)
 			{
 				tank.draw(tankTexture, tankOldLineTexture, spriteBatch);
 			});
