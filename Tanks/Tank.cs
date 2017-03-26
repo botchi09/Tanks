@@ -85,7 +85,17 @@ namespace Tanks
 
 		public void addWaypoint(Vector2 waypoint)
 		{
-			waypoints.Add(waypoint);
+			if (waypoints.Count > 0)
+			{
+				if (Vector2.DistanceSquared(waypoints.Last(), waypoint) > 20) //Ignore points added too clustered together.
+				{
+					waypoints.Add(waypoint);
+				}
+			}
+			else
+			{
+				waypoints.Add(waypoint);
+			}
 		}
 
 		private void makeCallback()

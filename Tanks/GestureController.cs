@@ -23,9 +23,9 @@ namespace Tanks
 		private TanksModel tanksModel;
 		private GameStateModel gameStateModel;
 		private Vector2 lastTouchPosition;
+		private Vector2? lastSafePosition;
 
-		private int minDragDist = 50;
-		private int maxDragDist = 80;
+		private int minDragDist = 20;
 
 		//TODO: Figure out if this efficiency function is needed.
 		//Minimise number of points by requiring a minimum drag distance before new waypoint is created
@@ -33,9 +33,9 @@ namespace Tanks
 		{
 			//TODO: Fix unresponsiveness as result of this code
 			//return true;
-			int dist = (int)UtilityFuncs.DistanceSquared(point1, point2);
+			float dist = Vector2.DistanceSquared(point1, point2);
 
-			return dist > (minDragDist * minDragDist) && dist < (maxDragDist * maxDragDist);
+			return dist > (minDragDist * minDragDist);
 		}
 
 		//TODO: Given an origin, returns a point safely out of collision.
@@ -43,12 +43,28 @@ namespace Tanks
 		{
 			CoverCollision coverCollision = new CoverCollision();
 			Line intersect = new Line();
-			intersect.addPoint(originPoint);
+
+			if (lastSafePosition != null)
+			{
+				intersect.addPoint((Vector2)lastSafePosition);
+			}
+			else
+			{
+				intersect.addPoint(originPoint);
+			}
 			intersect.addPoint(destinationPoint);
 
-			Line safeLine = coverCollision.getSafeIntersectionPoint(intersect, coverController.getCoverList());
+			CoverCollisionResult result = coverCollision.getSafeIntersectionPoint(intersect, coverController.getCoverList());
 
-			return safeLine.getPoints().Last();
+			Line safeLine = result.getLine();
+			Vector2 lastSafeLinePoint = safeLine.getPoints().Last();
+
+			if (!result.getWasModified())
+			{
+				lastSafePosition = lastSafeLinePoint;
+			}
+
+			return lastSafeLinePoint;
 		}
 
 		public GestureController(TanksModel tanksModel, GameStateModel gameStateModel,
@@ -111,6 +127,8 @@ namespace Tanks
 									if (selectedTank != null && sufficientDragDistance(selectedTank.getPosition(), firstPosition))
 									{
 										System.Diagnostics.Debug.WriteLine("First draw detection");
+
+										lastSafePosition = null;
 
 										Vector2 safePoint = ensureSafePoint(selectedTank.getPosition(), firstPosition);
 

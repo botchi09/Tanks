@@ -64,6 +64,7 @@
     <Compile Include="Buttons\ButtonController.cs" />
     <Compile Include="Buttons\ButtonType.cs" />
     <Compile Include="CoverCollision.cs" />
+    <Compile Include="CoverCollisionResult.cs" />
     <Compile Include="CoverController.cs" />
     <Compile Include="DetectedGesture.cs" />
     <Compile Include="Cover.cs" />

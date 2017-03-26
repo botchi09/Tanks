@@ -21,8 +21,10 @@ namespace Tanks
 
 		//TODO: Fully delegate intersection from Cover
 		//Returns a safe position should a projected line intersect with cover.
-		public Line getSafeIntersectionPoint(Line intersectionLine, List<Cover> coverList)
+		public CoverCollisionResult getSafeIntersectionPoint(Line intersectionLine, List<Cover> coverList)
 		{
+
+			bool wasModified = false;
 
 			Line safeLine = new Line();
 			safeLine.setPoints(intersectionLine.getPoints());
@@ -43,13 +45,33 @@ namespace Tanks
 
 				if (solution.ChildCount > 0)
 				{
-					Vector2 safePoint = Vector2Ext.ToVector2(solution.Childs[0].Contour[0]);
-					safeLine.getPoints().RemoveAt(0); //Remove the last point on this line
+					Vector2 contourOne = Vector2Ext.ToVector2(solution.Childs[0].Contour[0]);
+					Vector2 contourTwo = Vector2Ext.ToVector2(solution.Childs[0].Contour[1]);
+
+					/*Vector2 safePoint = Vector2Ext.ToVector2(solution.Childs[0].Contour[0]);
+
+					//Now do a small unit vector offset to prevent wall stickiness.
+					//intersectionLine.getPoints().First();
+					Vector2 direction = Vector2.Subtract(safeLine.getPoints().First(), safePoint);
+					Vector2 unit = Vector2.Normalize(direction);
+
+					safePoint = Vector2.Add(safePoint, unit * 15);*/
+
+					Vector2 direction = Vector2.Subtract(contourOne, contourTwo);
+					Vector2 unit = Vector2.Normalize(direction);
+
+					Vector2 safePoint = Vector2.Add(contourOne, unit * 15);
+
+					safeLine.getPoints().RemoveAt(safeLine.getPoints().Count - 1); //Remove the last point on this line
+					//safeLine.getPoints().RemoveAt(0); //Remove the last point on this line
+
+
 					safeLine.addPoint(safePoint);
+					wasModified = true;
 				}
 			}
 
-			return safeLine;
+			return new CoverCollisionResult(safeLine, wasModified);
 		}
 	}
 }

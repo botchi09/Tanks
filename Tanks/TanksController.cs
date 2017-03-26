@@ -58,7 +58,7 @@ namespace Tanks
 
 			getTanks().ForEach(delegate (Tank tank)
 			{
-				if (UtilityFuncs.DistanceSquared(tank.getPosition(), point) < (tankTouchRadius * tankTouchRadius))
+				if (Vector2.DistanceSquared(tank.getPosition(), point) < (tankTouchRadius * tankTouchRadius))
 				{
 					possibleTanks.Add(tank);
 				}
@@ -68,7 +68,7 @@ namespace Tanks
 			//https://msdn.microsoft.com/en-us/library/b0zbh7b6(v=vs.110).aspx
 			possibleTanks.Sort(delegate (Tank tankOne, Tank tankTwo)
 			{
-				if (UtilityFuncs.DistanceSquared(point, tankOne.getPosition()) > UtilityFuncs.DistanceSquared(point, tankTwo.getPosition()))
+				if (Vector2.DistanceSquared(point, tankOne.getPosition()) > Vector2.DistanceSquared(point, tankTwo.getPosition()))
 				{
 					return 1;
 				}
