@@ -21,6 +21,7 @@ namespace Tanks
 		private int radius;
 		private List<Cover> coverList = new List<Cover>();
 		private Vector2 centre;
+		private CoverController coverController;
 
 		//http://stackoverflow.com/a/5301049
 		private Path createCircleOfPoints(int points, double radius, IntPoint centre)
@@ -54,11 +55,12 @@ namespace Tanks
 			this.radius = radius;
 		}
 
-		public Explosion(Vector2 centre, int radius, List<Cover> allCover)
+		public Explosion(Vector2 centre, int radius, List<Cover> allCover, CoverController coverController)
 		{
 			this.coverList = allCover;
 			this.centre = centre;
 			this.radius = radius;
+			this.coverController = coverController;
 		}
 
 		//Required as constructors cannot return values
@@ -66,6 +68,8 @@ namespace Tanks
 		{
 			return ExplosionAt(centre, radius, coverList);
 		}
+
+		
 
 		//TODO: MUST NOT MODIFY LINES INDIVIDUALLY! PASS COVER AS GROUP TO CLIPPER!
 		private List<Cover> ExplosionAt(Vector2 centre, int radius, List<Cover> allCover)
@@ -88,22 +92,13 @@ namespace Tanks
 
 				clipper.Execute(ClipType.ctDifference, solution);
 
-
 				if (solution.Count > 0)
 				{
 					assignedLine.getPoints().Clear();
 
 					solution.ForEach(delegate (List<IntPoint> coverItem)
 					{
-						Cover newCover = new Tanks.Cover();
-
-						for (int index = 0; index < coverItem.Count; index++)
-						{
-							newCover.getAssignedLine().addPoint(Vector2Ext.ToVector2(coverItem[index]));
-						}
-
-						//One more line to connect it all up...
-						newCover.getAssignedLine().addPoint(newCover.getAssignedLine().getPoints()[0]);
+						Cover newCover = coverController.convertIntPointsToCover(coverItem);
 
 						newCoverList.Add(newCover);
 					});
@@ -114,6 +109,8 @@ namespace Tanks
 
 			return newCoverList;
 		}
+
+		
 	}
 
 }

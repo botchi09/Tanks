@@ -108,7 +108,7 @@ namespace Tanks
 							else
 							{
 								//TODO: Remove this and replace it with a flick!
-								Explosion explosion = new Explosion(detectedGesture.Position, 100, coverController.getCoverList());
+								Explosion explosion = new Explosion(detectedGesture.Position, 100, coverController.getCoverList(), coverController);
 								coverController.setCoverList(explosion.Explode());
 							}
 							break;
