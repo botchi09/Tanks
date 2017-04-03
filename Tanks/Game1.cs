@@ -78,9 +78,21 @@ namespace Tanks
 			userInterfaceController = new UserInterfaceController(this);
 
 			tanksController = new TanksController(tanksModel);
-			tanksController.createTank(new Vector2(100, 100), tanksModel.tankLineHistory);
-			tanksController.createTank(new Vector2(300, 100), tanksModel.tankLineHistory);
-			tanksController.createTank(new Vector2(1000, 600), tanksModel.tankLineHistory);
+
+			int tanksPerSide = 4;
+
+			for (int i = 1; i <= tanksPerSide; i++)
+			{
+				float yPos = (GraphicsDevice.Viewport.Height / (tanksPerSide + 1)) * i;
+
+				Tank leftTank = tanksController.createTank(new Vector2(300, yPos), TankTeam.ONE, tanksModel.tankLineHistory);
+				Tank rightTank = tanksController.createTank(new Vector2(1620, yPos), TankTeam.TWO, tanksModel.tankLineHistory);
+
+				rightTank.setRotation(180);
+			}
+			/*tanksController.createTank(new Vector2(100, 216 * 2), TankTeam.ONE, tanksModel.tankLineHistory);
+			tanksController.createTank(new Vector2(100, 216 * 3), TankTeam.ONE, tanksModel.tankLineHistory);
+			tanksController.createTank(new Vector2(100, 216 * 4), TankTeam.ONE, tanksModel.tankLineHistory);*/
 
 			coverController = new CoverController(tanksModel);
 
@@ -112,6 +124,11 @@ namespace Tanks
 
 			tankTexture = Content.Load<Texture2D>("Tank2");
 
+			Dictionary<TankTeam, Texture2D> tankTextures = new Dictionary<TankTeam, Texture2D>();
+
+			tankTextures.Add(TankTeam.ONE, this.Content.Load<Texture2D>("Tank_Filled"));
+			tankTextures.Add(TankTeam.TWO, this.Content.Load<Texture2D>("Tank_Unfilled"));
+
 			Dictionary<ButtonType, Texture2D> buttonTextures = new Dictionary<ButtonType, Texture2D>();
 
 			buttonTextures.Add(ButtonType.Undo, this.Content.Load<Texture2D>("UndoButton"));
@@ -119,10 +136,9 @@ namespace Tanks
 			buttonTextures.Add(ButtonType.UndoPressed, this.Content.Load<Texture2D>("UndoButtonPressed"));
 			buttonTextures.Add(ButtonType.EndTurnPressed, this.Content.Load<Texture2D>("EndTurnButtonPressed"));
 
-
 			buttonController.setButtonTextures(buttonTextures);
 
-			tanksView.setDrawTextures(lineTexture, oldLineTexture, tankTexture, coverTexture);
+			tanksView.setDrawTextures(lineTexture, oldLineTexture, tankTextures, coverTexture);
 		}
 
 		/// <summary>

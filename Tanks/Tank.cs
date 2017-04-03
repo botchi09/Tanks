@@ -23,15 +23,22 @@ namespace Tanks
 		private List<Vector2> waypoints = new List<Vector2>();
 		private List<Vector2> completedWaypoints = new List<Vector2>();
 		private Line lastShot;
+		private TankTeam team;
 
 		private bool movementEnabled = true;
 		private bool engineDisabled = false;
 		private bool gunsDisabled = false;
 		private TankLineHistory moveCompleteHistoryCallback; //This is non-generic and bad practice. Hard to test.
 
-		public Tank(TankLineHistory tankLineHistory)
+		public Tank(TankLineHistory tankLineHistory, TankTeam team)
 		{
 			this.moveCompleteHistoryCallback = tankLineHistory;
+			this.team = team;
+		}
+
+		public TankTeam getTeam()
+		{
+			return this.team;
 		}
 
 		public bool canMove()

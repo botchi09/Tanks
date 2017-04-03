@@ -25,8 +25,9 @@ namespace Tanks
 
 		private Texture2D lineTexture;
 		private Texture2D oldLineTexture;
-		private Texture2D tankTexture;
 		private Texture2D coverTexture;
+
+		private Dictionary<TankTeam, Texture2D> teamTextures;
 
 		public TanksView(TanksModel tanksModel, GameStateModel gameStateModel, TanksController tanksController, CoverController coverController, ButtonController buttonController)
 		{
@@ -38,11 +39,11 @@ namespace Tanks
 
 		}
 
-		public void setDrawTextures(Texture2D lineTexture, Texture2D oldLineTexture, Texture2D tankTexture, Texture2D coverTexture)
+		public void setDrawTextures(Texture2D lineTexture, Texture2D oldLineTexture, Dictionary<TankTeam, Texture2D> teamTextures, Texture2D coverTexture)
 		{
 			this.lineTexture = lineTexture;
 			this.oldLineTexture = oldLineTexture;
-			this.tankTexture = tankTexture;
+			this.teamTextures = teamTextures;
 			this.coverTexture = coverTexture;
 		}
 
@@ -65,10 +66,8 @@ namespace Tanks
 				coverItem.draw(coverTexture, spriteBatch);
 			});
 
-			tanksController.draw(tankTexture, oldLineTexture, spriteBatch);
+			tanksController.draw(teamTextures, oldLineTexture, spriteBatch);
 			tanksModel.tankLineHistory.draw(oldLineTexture, spriteBatch);
-
-			
 
 			buttonController.draw(spriteBatch);
 

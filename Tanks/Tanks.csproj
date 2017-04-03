@@ -80,6 +80,7 @@
     <Compile Include="TankCollisionResult.cs" />
     <Compile Include="TanksModel.cs" />
     <Compile Include="TanksView.cs" />
+    <Compile Include="TankTeam.cs" />
     <Compile Include="UserInterfaceController.cs" />
     <Compile Include="Line.cs" />
     <Compile Include="Resources\Resource.Designer.cs" />

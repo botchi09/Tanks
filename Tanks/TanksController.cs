@@ -38,12 +38,13 @@ namespace Tanks
 			tanksModel.tanks.Add(tank);
 		}
 
-		public void createTank(Vector2 position, TankLineHistory tankLineHistory)
+		public Tank createTank(Vector2 position, TankTeam team, TankLineHistory tankLineHistory)
 		{
-			Tank tank = new Tank(tankLineHistory);
+			Tank tank = new Tank(tankLineHistory, team);
 			tank.setPosition(position);
 
 			addTank(tank);
+			return tank;
 		}
 
 
@@ -96,11 +97,11 @@ namespace Tanks
 			});
 		}
 
-		public void draw(Texture2D tankTexture, Texture2D tankOldLineTexture, SpriteBatch spriteBatch)
+		public void draw(Dictionary<TankTeam, Texture2D> teamTextures, Texture2D tankOldLineTexture, SpriteBatch spriteBatch)
 		{
 			getTanks().ForEach(delegate (Tank tank)
 			{
-				tank.draw(tankTexture, tankOldLineTexture, spriteBatch);
+				tank.draw(teamTextures[tank.getTeam()], tankOldLineTexture, spriteBatch);
 			});
 		}
 	}
