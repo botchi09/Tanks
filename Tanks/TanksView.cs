@@ -49,10 +49,7 @@ namespace Tanks
 		public void draw(SpriteBatch spriteBatch, GameTime gameTime)
 		{
 
-			coverController.getCoverList().ForEach(delegate (Cover coverItem)
-			{
-				coverItem.draw(coverTexture, spriteBatch);
-			});
+			
 
 			if (!gameStateModel.coverDrawingMode)
 			{
@@ -62,6 +59,11 @@ namespace Tanks
 			{
 				tanksModel.coverLine.drawLines(lineTexture, spriteBatch);
 			}
+
+			coverController.getCoverList().ForEach(delegate (Cover coverItem)
+			{
+				coverItem.draw(coverTexture, spriteBatch);
+			});
 
 			tanksController.draw(tankTexture, oldLineTexture, spriteBatch);
 			tanksModel.tankLineHistory.draw(oldLineTexture, spriteBatch);

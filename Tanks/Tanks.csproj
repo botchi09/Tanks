@@ -63,6 +63,7 @@
     <Compile Include="Buttons\Button.cs" />
     <Compile Include="Buttons\ButtonController.cs" />
     <Compile Include="Buttons\ButtonType.cs" />
+    <Compile Include="Circle.cs" />
     <Compile Include="CoverCollision.cs" />
     <Compile Include="CoverCollisionResult.cs" />
     <Compile Include="CoverController.cs" />
@@ -75,6 +76,8 @@
     <Compile Include="GestureController.cs" />
     <Compile Include="GestureDetect.cs" />
     <Compile Include="OptionsModel.cs" />
+    <Compile Include="TankCollision.cs" />
+    <Compile Include="TankCollisionResult.cs" />
     <Compile Include="TanksModel.cs" />
     <Compile Include="TanksView.cs" />
     <Compile Include="UserInterfaceController.cs" />

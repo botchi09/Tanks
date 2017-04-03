@@ -10,6 +10,7 @@ using Android.Runtime;
 using Android.Views;
 using Android.Widget;
 using Microsoft.Xna.Framework.Input.Touch;
+using Microsoft.Xna.Framework;
 
 namespace Tanks
 {
@@ -20,11 +21,16 @@ namespace Tanks
 		 */
 
 		private int dragIntervalThreshold = 1; //How many ticks to detect a drag
-		private int updateIntervalMs = 30;
+		private int updateIntervalMs = (1 / (60)) * 1000; //Update 60 fps
 
 		private double lastUpdateTime = 0;
 		private int totalDragUpdates = 0;
-		private float lastDeltaSquared = 0;
+
+		private Vector2? lastDelta;
+		private Vector2? lastPosition;
+
+		private List<Vector2> lastGestures = new List<Vector2>();
+
 		private DetectedGesture lastDetectedGesture;
 		private bool isDragging = false;
 		private bool firstTimeDrag = false;
@@ -33,9 +39,14 @@ namespace Tanks
 		{
 			totalDragUpdates = 0;
 			lastUpdateTime = time; //So drawings in quick succession aren't interpreted as flicks
-			lastDeltaSquared = 0;
+
+			lastDelta = null;
+			lastPosition = null;
+
 			isDragging = false;
 			firstTimeDrag = false;
+
+			lastGestures = new List<Vector2>();
 
 			//System.Diagnostics.Debug.WriteLine("Resetting variables");
 
@@ -66,18 +77,20 @@ namespace Tanks
 
 					case GestureType.Pinch:
 						System.Diagnostics.Debug.WriteLine("Pinching..");
-						
+
 						detectedGs.GestureType = GestureType.Pinch;
 						return detectedGs;
 
 					case GestureType.PinchComplete:
 						System.Diagnostics.Debug.WriteLine("Pinch complete!");
-						
+
 						detectedGs.GestureType = GestureType.PinchComplete;
 						return detectedGs;
 
 					case GestureType.FreeDrag:
 
+						lastDelta = detectedGs.Delta;
+						lastPosition = detectedGs.Position;
 
 						//Test every updateIntervalMs to see if velocity warrants a flick, or a drag.
 						if (lastUpdateTime + updateIntervalMs <= time)
@@ -110,7 +123,10 @@ namespace Tanks
 
 					case GestureType.DragComplete:
 						System.Diagnostics.Debug.WriteLine("Drag complete");
-						System.Diagnostics.Debug.WriteLine(lastDeltaSquared);
+
+						Vector2 lastDeltaNonNull = (Vector2)lastDelta;
+
+						System.Diagnostics.Debug.WriteLine(lastDeltaNonNull.LengthSquared());
 
 						if (totalDragUpdates > dragIntervalThreshold)
 						{
@@ -118,13 +134,19 @@ namespace Tanks
 
 							detectedGs.GestureType = GestureType.DragComplete;
 							resetDrag(time);
-							return detectedGs;
+							return detectedGs; //No other gesture data available otherwise
 						}
 						else
 						{
 							System.Diagnostics.Debug.WriteLine("Flick detected");
 
-							detectedGs.GestureType = GestureType.Flick;
+							detectedGs.GestureType = GestureType.Flick; //No other gesture data available otherwise
+							if (lastDelta != null && lastPosition != null)
+							{
+								detectedGs.Delta = (Vector2)lastDelta;
+								detectedGs.Position = (Vector2)lastPosition;
+							}
+
 							resetDrag(time);
 							return detectedGs;
 						}

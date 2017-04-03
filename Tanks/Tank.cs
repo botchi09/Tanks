@@ -22,9 +22,11 @@ namespace Tanks
 		private int speed = 200;
 		private List<Vector2> waypoints = new List<Vector2>();
 		private List<Vector2> completedWaypoints = new List<Vector2>();
+		private Line lastShot;
 
 		private bool movementEnabled = true;
 		private bool engineDisabled = false;
+		private bool gunsDisabled = false;
 		private TankLineHistory moveCompleteHistoryCallback; //This is non-generic and bad practice. Hard to test.
 
 		public Tank(TankLineHistory tankLineHistory)
@@ -40,6 +42,17 @@ namespace Tanks
 		public void disableEngine()
 		{
 			engineDisabled = true;
+		}
+
+		public void disableGuns()
+		{
+			gunsDisabled = true;
+		}
+
+		public void blowUp()
+		{
+			disableEngine();
+			disableGuns();
 		}
 
 		public void setMovementEnabled(bool enabled)
@@ -81,6 +94,11 @@ namespace Tanks
 							 1,
 							 SpriteEffects.None, 0f);
 			spriteBatch.End();
+
+			if (lastShot != null)
+			{
+				lastShot.drawLines(tankOldLineTexture, spriteBatch);
+			}
 		}
 
 		public void addWaypoint(Vector2 waypoint)
@@ -178,6 +196,42 @@ namespace Tanks
 			return position == goal;
 		}
 
+		public void shoot(Vector2 direction, CoverController coverController, TanksController tanksController)
+		{
+			if (!gunsDisabled)
+			{
+				List<Cover> allCover = coverController.getCoverList();
+				CoverCollision coverCollision = new CoverCollision();
+				TankCollision tankCollision = new TankCollision();
 
+				Line shotLine = new Tanks.Line();
+				shotLine.addPoint(position);
+				shotLine.addPoint(position + direction);
+
+				//Use tank collision detection to find if tank shell collides and explodes.
+				Vector2 explosionPoint = coverCollision.getSafeIntersectionPoint(shotLine, allCover).getLine().getPoints()[1];
+				TankCollisionResult shotTraceResult = tankCollision.getShotTankCollision(shotLine, tanksController.getTanks(), this);
+
+				if (shotTraceResult.getTankHit() != null)
+				{
+					if (shotTraceResult.getDisabled())
+					{
+						shotTraceResult.getTankHit().disableEngine();
+						System.Diagnostics.Debug.WriteLine("Tank disabled!");
+					}
+					else
+					{
+						shotTraceResult.getTankHit().blowUp();
+						System.Diagnostics.Debug.WriteLine("Tank wrecked!");
+					}
+				}
+
+				Explosion explosion = new Explosion(explosionPoint, 100, coverController, tanksController);
+				lastShot = shotLine;
+				System.Diagnostics.Debug.WriteLine("Shooting guns!");
+				coverController.setCoverList(explosion.Explode());
+			}
+
+		}
 	}
 }

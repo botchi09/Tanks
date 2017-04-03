@@ -107,13 +107,18 @@ namespace Tanks
 							}
 							else
 							{
-								//TODO: Remove this and replace it with a flick!
-								Explosion explosion = new Explosion(detectedGesture.Position, 100, coverController.getCoverList(), coverController);
-								coverController.setCoverList(explosion.Explode());
+								
 							}
 							break;
 						case GestureType.Flick:
-							break;
+							if (!gameStateModel.coverDrawingMode && selectedTank != null)
+							{
+								Vector2 direction = Vector2.Multiply(detectedGesture.Delta, 6); 
+
+								selectedTank.shoot(direction, coverController, tanksController);
+								
+							}
+								break;
 						case GestureType.FreeDrag:
 
 							//Ensure the user must drag out from the tank to draw. Each new drag creates a new line.

@@ -23,23 +23,7 @@ namespace Tanks
 		private Vector2 centre;
 		private CoverController coverController;
 
-		//http://stackoverflow.com/a/5301049
-		private Path createCircleOfPoints(int points, double radius, IntPoint centre)
-		{
-			Path circlePoints = new Path();
-
-			double slice = 2 * Math.PI / points;
-			for (int i = 0; i < points; i++)
-			{
-				double angle = slice * i;
-				double newX = (centre.X + radius * Math.Cos(angle));
-				double newY = (centre.Y + radius * Math.Sin(angle));
-
-				circlePoints.Add(new IntPoint(newX, newY));
-			}
-
-			return circlePoints;
-		}
+		
 
 		//Clamps an int between two values
 		//http://stackoverflow.com/a/3040551
@@ -48,16 +32,10 @@ namespace Tanks
 			return (value < min) ? min : (value > max) ? max : value;
 		}
 
-		public Explosion(Vector2 centre, int radius, Cover cover)
+		//TODO: Decide if we should have radial explosions also damage tanks.
+		public Explosion(Vector2 centre, int radius, CoverController coverController, TanksController tanksController)
 		{
-			coverList.Add(cover);
-			this.centre = centre;
-			this.radius = radius;
-		}
-
-		public Explosion(Vector2 centre, int radius, List<Cover> allCover, CoverController coverController)
-		{
-			this.coverList = allCover;
+			this.coverList = coverController.getCoverList();
 			this.centre = centre;
 			this.radius = radius;
 			this.coverController = coverController;
@@ -81,7 +59,7 @@ namespace Tanks
 				Line assignedLine = cover.getAssignedLine();
 
 				int optimalNumberOfPoints = Clamp(radius / 10, 10, 100);
-				Path circle = createCircleOfPoints(optimalNumberOfPoints, radius, Vector2Ext.ToIntPoint(centre));
+				Path circle = new Circle().createCircleOfPoints(optimalNumberOfPoints, radius, Vector2Ext.ToIntPoint(centre));
 
 				Clipper clipper = new Clipper();
 				Paths solution = new Paths();
