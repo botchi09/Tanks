@@ -26,7 +26,7 @@ namespace Tanks
 		public Vector2 Position2;
 		public TimeSpan Timestamp;
 		public bool firstDetection = false;
-		public DetectedGesture firstDetectedGesture;
+		public List<Vector2> detectedGestureList;
 
 	}
 }

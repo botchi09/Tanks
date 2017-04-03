@@ -107,47 +107,52 @@ namespace Tanks
 							}
 							else
 							{
-								
+
 							}
 							break;
 						case GestureType.Flick:
 							if (!gameStateModel.coverDrawingMode && selectedTank != null)
 							{
-								Vector2 direction = Vector2.Multiply(detectedGesture.Delta, 6); 
+								Vector2 direction = Vector2.Multiply(detectedGesture.Delta, 6);
 
 								selectedTank.shoot(direction, coverController, tanksController);
-								
+
 							}
-								break;
+							break;
 						case GestureType.FreeDrag:
 
 							//Ensure the user must drag out from the tank to draw. Each new drag creates a new line.
 							if (detectedGesture.firstDetection)
 							{
-								Vector2 firstPosition = detectedGesture.firstDetectedGesture.Position;
+								List<Vector2> firstPositions = detectedGesture.detectedGestureList;
 
 								if (!gameStateModel.coverDrawingMode)
 								{
 
-									if (selectedTank != null && sufficientDragDistance(selectedTank.getPosition(), firstPosition))
+									if (selectedTank != null && sufficientDragDistance(selectedTank.getPosition(), firstPositions.Last()))
 									{
 										System.Diagnostics.Debug.WriteLine("First draw detection");
 
 										lastSafePosition = null;
 
-										Vector2 safePoint = ensureSafePoint(selectedTank.getPosition(), firstPosition);
-
 										tanksModel.tankFollowLine = new Line();
 										tanksModel.tankFollowLine.addPoint(selectedTank.getPosition()); //Create illusion of tank closely following line
-										tanksModel.tankFollowLine.addPoint(safePoint);
 
 										selectedTank.saveAndClearWaypoints();
 										selectedTank.addWaypoint(selectedTank.getPosition()); //Necessary for Undo to place in correct pos
-										selectedTank.addWaypoint(safePoint);
+
+										firstPositions.ForEach(delegate (Vector2 position)
+										{
+
+											Vector2 safePoint = ensureSafePoint(selectedTank.getPosition(), position);
+											tanksModel.tankFollowLine.addPoint(safePoint);
+
+											selectedTank.addWaypoint(safePoint);
+
+										});
 
 										tanksModel.lastSelectedTank = selectedTank;
-										lastTouchPosition = firstPosition;
-
+										lastTouchPosition = firstPositions.Last();
 
 										selectedTank.setMovementEnabled(false);
 
@@ -160,7 +165,11 @@ namespace Tanks
 								else
 								{
 									tanksModel.coverLine = new Tanks.Line();
-									tanksModel.coverLine.addPoint(firstPosition);
+
+									firstPositions.ForEach(delegate (Vector2 position)
+									{
+										tanksModel.coverLine.addPoint(position);
+									});
 								}
 							}
 

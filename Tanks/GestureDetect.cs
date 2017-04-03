@@ -20,7 +20,7 @@ namespace Tanks
 		 * Ref: http://stackoverflow.com/a/15155929
 		 */
 
-		private int dragIntervalThreshold = 1; //How many ticks to detect a drag
+		private int dragIntervalThreshold = 6; //How many ticks to detect a drag
 		private int updateIntervalMs = (1 / (60)) * 1000; //Update 60 fps
 
 		private double lastUpdateTime = 0;
@@ -31,7 +31,6 @@ namespace Tanks
 
 		private List<Vector2> lastGestures = new List<Vector2>();
 
-		private DetectedGesture lastDetectedGesture;
 		private bool isDragging = false;
 		private bool firstTimeDrag = false;
 
@@ -112,7 +111,7 @@ namespace Tanks
 							if (firstTimeDrag)
 							{
 								detectedGs.firstDetection = true;
-								detectedGs.firstDetectedGesture = lastDetectedGesture;
+								detectedGs.detectedGestureList = lastGestures;
 								firstTimeDrag = false;
 								System.Diagnostics.Debug.WriteLine("First time drag detected...");
 							}
@@ -143,8 +142,9 @@ namespace Tanks
 							detectedGs.GestureType = GestureType.Flick; //No other gesture data available otherwise
 							if (lastDelta != null && lastPosition != null)
 							{
-								detectedGs.Delta = (Vector2)lastDelta;
-								detectedGs.Position = (Vector2)lastPosition;
+								detectedGs.Delta = Vector2.Subtract(lastGestures.Last(), lastGestures.First()); //(Vector2)lastDelta;
+								detectedGs.Position = lastGestures.First(); //(Vector2)lastPosition;
+								//detectedGs.detectedGestureList = lastGestures;
 							}
 
 							resetDrag(time);
@@ -155,7 +155,7 @@ namespace Tanks
 						break;
 				}
 
-				lastDetectedGesture = detectedGs;
+				lastGestures.Add(detectedGs.Position);
 
 				detectedGs.GestureType = GestureType.None;
 				return detectedGs;
