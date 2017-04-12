@@ -37,6 +37,7 @@ namespace Tanks
 
 		private GestureDetect gestureDetect;
 
+		private InkMonitor inkMonitor;
 
 		private Tank getLastSelectedTank()
 		{
@@ -69,6 +70,9 @@ namespace Tanks
 
 			tanksModel = new TanksModel();
 			gameStateModel = new GameStateModel();
+
+			inkMonitor = new InkMonitor();
+			tanksModel.inkMonitor = inkMonitor;
 
 
 			gestureDetect = new GestureDetect();

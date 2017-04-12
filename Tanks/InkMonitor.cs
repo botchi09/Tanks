@@ -9,12 +9,14 @@ using Android.OS;
 using Android.Runtime;
 using Android.Views;
 using Android.Widget;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Tanks
 {
 	class InkMonitor
 	{
-		private int maxInk = 100;
+		private int maxInk = 500;
 		private int ink;
 
 		public InkMonitor()
@@ -32,9 +34,25 @@ namespace Tanks
 			return ink;
 		}
 
-		public void spendInk()
+		public void spendInk(int inkSpent)
 		{
-			ink--;
+			ink = ink - inkSpent;
+			System.Diagnostics.Debug.WriteLine("ink left: " + ink);
+		}
+
+		public bool canSpendInk(int inkSpent)
+		{
+			return (ink - inkSpent) > 0;
+		}
+
+		public float getInkPercent()
+		{
+			return (float)(ink / maxInk);
+		}
+
+		public void draw(SpriteBatch spriteBatch, Vector2 offset)
+		{
+
 		}
 	}
 }

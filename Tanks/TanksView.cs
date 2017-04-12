@@ -38,7 +38,7 @@ namespace Tanks
 			this.buttonController = buttonController;
 
 		}
-
+		
 		public void setDrawTextures(Texture2D lineTexture, Texture2D oldLineTexture, Dictionary<TankTeam, Texture2D> teamTextures, Texture2D coverTexture)
 		{
 			this.lineTexture = lineTexture;
@@ -70,6 +70,8 @@ namespace Tanks
 			tanksModel.tankLineHistory.draw(oldLineTexture, spriteBatch);
 
 			buttonController.draw(spriteBatch);
+
+			tanksModel.inkMonitor.draw(spriteBatch, new Vector2(300, 300));
 
 		}
 	}

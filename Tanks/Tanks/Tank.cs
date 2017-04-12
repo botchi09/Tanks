@@ -24,16 +24,23 @@ namespace Tanks
 		private List<Vector2> completedWaypoints = new List<Vector2>();
 		private Line lastShot;
 		private TankTeam team;
+		private InkMonitor inkMonitor;
 
 		private bool movementEnabled = true;
 		private bool engineDisabled = false;
 		private bool gunsDisabled = false;
-		private TankLineHistory moveCompleteHistoryCallback; //This is non-generic and bad practice. Hard to test.
+		private TankLineHistory moveCompleteHistoryCallback;
 
 		public Tank(TankLineHistory tankLineHistory, TankTeam team)
 		{
-			this.moveCompleteHistoryCallback = tankLineHistory;
+			moveCompleteHistoryCallback = tankLineHistory;
 			this.team = team;
+			this.inkMonitor = new InkMonitor();
+		}
+
+		public float getInkLevel()
+		{
+			return inkMonitor.getInkPercent();
 		}
 
 		public TankTeam getTeam()
@@ -108,13 +115,23 @@ namespace Tanks
 			}
 		}
 
+		public int getNewWaypointCost(Vector2 newWaypoint)
+		{
+			return (int)Vector2.Distance(waypoints.Last(), newWaypoint); //DistanceSquared will give us squared progression
+		}
+
 		public void addWaypoint(Vector2 waypoint)
 		{
 			if (waypoints.Count > 0)
 			{
-				if (Vector2.DistanceSquared(waypoints.Last(), waypoint) > 20) //Ignore points added too clustered together.
+				int cost = getNewWaypointCost(waypoint);
+				if (inkMonitor.canSpendInk(cost)) //Ensure that we have enough movement to create new waypoint
 				{
-					waypoints.Add(waypoint);
+					if (Vector2.DistanceSquared(waypoints.Last(), waypoint) > 20) //Ignore points added too clustered together.
+					{
+						inkMonitor.spendInk(cost);
+						waypoints.Add(waypoint);
+					}
 				}
 			}
 			else
