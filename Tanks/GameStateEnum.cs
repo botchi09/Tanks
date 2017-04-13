@@ -12,18 +12,7 @@ using Android.Widget;
 
 namespace Tanks
 {
-	class GameState
+	class GameStateEnum
 	{
-		private List<TankTeam> teamOrder = new List<TankTeam>();
-
-		public GameState()
-		{
-
-		}
-
-		private void endTurn()
-		{
-
-		}
 	}
 }
