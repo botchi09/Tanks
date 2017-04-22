@@ -20,7 +20,6 @@ namespace Tanks
 		public Line coverLine { get; set; }
 		public TankLineHistory tankLineHistory { get; set; }
 		public List<Tank> tanks { get; set; }
-		public InkMonitor inkMonitor { get; set; }
 
 		public TanksModel()
 		{

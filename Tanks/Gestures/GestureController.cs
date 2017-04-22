@@ -79,9 +79,21 @@ namespace Tanks
 
 		}
 
-		public void update(GameTime gameTime)
+		private bool authorisedToMoveTank(Tank tank)
 		{
-			DetectedGesture detectedGesture = gestureDetect.getGesture(gameTime.TotalGameTime.TotalMilliseconds); //May be null before game space is fully initialized
+			switch(tank.getTeam())
+			{
+				case TankTeam.ONE:
+					return gameStateModel.gamePhase == GamePhase.P1_FIGHT;
+				case TankTeam.TWO:
+					return gameStateModel.gamePhase == GamePhase.P2_FIGHT;
+			}
+			return false;
+		}
+
+		public void update(double timeStep)
+		{
+			DetectedGesture detectedGesture = gestureDetect.getGesture(timeStep); //May be null before game space is fully initialized
 
 			if (detectedGesture.GestureType != GestureType.None)
 			{
@@ -91,7 +103,13 @@ namespace Tanks
 					Tank selectedTank = null;
 					if (!gameStateModel.coverDrawingMode)
 					{
-						selectedTank = tanksController.getTankFromTouchPosition(detectedGesture.Position);
+						//Find tank nearest to touch position.
+						//rOnly set selected tank to proposed tank selection if player is allowed to control that tank.
+						Tank proposedTank = tanksController.getTankFromTouchPosition(detectedGesture.Position);
+						if (authorisedToMoveTank(proposedTank))
+						{
+							selectedTank = proposedTank;
+						}
 					}
 
 					switch (detectedGesture.GestureType)

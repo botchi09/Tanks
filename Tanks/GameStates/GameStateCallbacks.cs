@@ -12,11 +12,18 @@ using Android.Widget;
 
 namespace Tanks
 {
-
-	enum TankTeam
+	class GameStateCallbacks
 	{
-		ONE,
-		TWO,
-	}
+		private Game1 game;
 
+		public GameStateCallbacks(Game1 game)
+		{
+			this.game = game;
+		}
+
+		public void matchComplete()
+		{
+			game.matchComplete();
+		}
+	}
 }

@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Input.Touch;
 using System.Collections.Generic;
 using System;
 using Tanks.Buttons;
+using Tanks.Messages;
 
 namespace Tanks
 {
@@ -16,6 +17,8 @@ namespace Tanks
 	public class Game1 : Microsoft.Xna.Framework.Game
 	{
 		GraphicsDeviceManager graphics;
+
+		
 		SpriteBatch spriteBatch;
 		private SpriteFont font;
 
@@ -29,6 +32,7 @@ namespace Tanks
 		private TanksController tanksController;
 		private GestureController gestureController;
 		private CoverController coverController;
+		private GameStateController gameStateController;
 
 		private TanksModel tanksModel;
 		private GameStateModel gameStateModel;
@@ -38,6 +42,12 @@ namespace Tanks
 		private GestureDetect gestureDetect;
 
 		private InkMonitor inkMonitor;
+
+		private GameStateCallbacks gameStateCallbacks;
+
+		private ScreenMessage screenMessage;
+		private MessageController messageController;
+		private MessageView messageView;
 
 		private Tank getLastSelectedTank()
 		{
@@ -71,9 +81,6 @@ namespace Tanks
 			tanksModel = new TanksModel();
 			gameStateModel = new GameStateModel();
 
-			inkMonitor = new InkMonitor();
-			tanksModel.inkMonitor = inkMonitor;
-
 
 			gestureDetect = new GestureDetect();
 			TouchPanel.EnabledGestures = GestureType.Tap | GestureType.FreeDrag | GestureType.DragComplete | GestureType.Pinch | GestureType.PinchComplete;
@@ -103,7 +110,16 @@ namespace Tanks
 			buttonController = new ButtonController(userInterfaceController);
 			gestureController = new GestureController(tanksModel, gameStateModel, tanksController, coverController, buttonController, gestureDetect);
 
-			tanksView = new TanksView(tanksModel, gameStateModel, tanksController, coverController, buttonController);
+			tanksView = new TanksView(graphics, tanksModel, gameStateModel, tanksController, coverController, buttonController);
+			gameStateCallbacks = new GameStateCallbacks(this);
+
+			screenMessage = new ScreenMessage();
+			messageView = new MessageView(screenMessage);
+			messageController = new MessageController(messageView);
+
+			gameStateController = new GameStateController(gameStateCallbacks, gameStateModel, tanksController, messageController);
+
+			gameStateController.setupGameState();
 
 			base.Initialize();
 		}
@@ -167,39 +183,31 @@ namespace Tanks
 
 
 			// TODO: Add your update logic here
-			gestureController.update(gameTime);
-			float timeStep = (float)gameTime.ElapsedGameTime.TotalSeconds;
+			double timeStep = gameTime.TotalGameTime.TotalMilliseconds;
 
 			/*if (tankFollowLine != null)
 			{
 				selectedTank.update(timeStep);
 			}*/
-			tanksController.update(timeStep);
+			gestureController.update(timeStep);
+
+			tanksController.update(gameTime.ElapsedGameTime.TotalSeconds); //Uses ElapsedTime to ensure smooth tank movement
+			messageController.update(timeStep);
 
 			base.Update(gameTime);
 		}
 
-
-
-		private void switchDrawingMode()
-		{
-			if (gameStateModel.coverDrawingMode)
-			{
-				gameStateModel.coverDrawingMode = false;
-				tanksModel.lastSelectedTank = null;
-
-			}
-			else
-			{
-				gameStateModel.coverDrawingMode = true;
-			}
-		}
-
 		public void endTurn()
 		{
-			//TODO: Forward end turn event to game state.
-			switchDrawingMode();
+			gameStateController.endTurn();
 		}
+
+		//Called by gameStateCallbacks
+		public void matchComplete()
+		{
+			
+		}
+
 
 		public void undoLastAction()
 		{
@@ -227,8 +235,10 @@ namespace Tanks
 
 			// TODO: Add your drawing code here
 
-			tanksView.draw(spriteBatch, gameTime);
+			tanksView.draw(spriteBatch);
 
+			//GraphicsDevice is necessary to find resolution agnostic centre of screen
+			messageView.draw(graphics.GraphicsDevice, spriteBatch, font);
 
 
 

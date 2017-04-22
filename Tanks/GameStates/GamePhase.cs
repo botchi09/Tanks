@@ -12,11 +12,11 @@ using Android.Widget;
 
 namespace Tanks
 {
-
-	enum TankTeam
+	enum GamePhase
 	{
-		ONE,
-		TWO,
+		P1_DRAW,
+		P2_DRAW,
+		P1_FIGHT,
+		P2_FIGHT
 	}
-
 }

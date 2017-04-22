@@ -18,10 +18,14 @@ namespace Tanks
 	{
 		private int maxInk = 500;
 		private int ink;
+		private Texture2D texture;
 
 		public InkMonitor()
 		{
 			resetInk();
+			texture = new Texture2D(graphics, 1, 1, false, SurfaceFormat.Color);
+			texture.SetData<Color>(new Color[] { Color.White });
+			return texture;
 		}
 
 		public void resetInk()

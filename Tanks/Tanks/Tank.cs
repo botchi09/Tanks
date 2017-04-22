@@ -29,6 +29,8 @@ namespace Tanks
 		private bool movementEnabled = true;
 		private bool engineDisabled = false;
 		private bool gunsDisabled = false;
+		private bool isAlive = true;
+
 		private TankLineHistory moveCompleteHistoryCallback;
 
 		public Tank(TankLineHistory tankLineHistory, TankTeam team)
@@ -46,6 +48,11 @@ namespace Tanks
 		public TankTeam getTeam()
 		{
 			return this.team;
+		}
+
+		public bool getAlive()
+		{
+			return isAlive;
 		}
 
 		public bool canMove()
@@ -67,6 +74,7 @@ namespace Tanks
 		{
 			disableEngine();
 			disableGuns();
+			isAlive = false;
 		}
 
 		public void setMovementEnabled(bool enabled)
@@ -84,6 +92,18 @@ namespace Tanks
 			return position;
 		}
 
+		public void resetHealth()
+		{
+			movementEnabled = true;
+			gunsDisabled = false;
+			isAlive = true;
+		}
+
+		public void resetMove()
+		{
+			inkMonitor.resetInk();
+		}
+
 		public void setRotation(int degrees)
 		{
 			rotation = (float)(degrees * Math.PI) / (180);
@@ -93,6 +113,12 @@ namespace Tanks
 		{
 
 			rotation = (float)Math.Atan2(vector.Y - position.Y, vector.X - position.X);
+		}
+
+		public void drawInkMonitor(Texture2D inkTexture, SpriteBatch spriteBatch)
+		{
+
+			spriteBatch.Draw(inkTexture, new Rectangle((int)position.X, (int)position.Y, 100, (int)(300 * getInkLevel())), Color.Black);
 		}
 
 		public void draw(Texture2D tankTexture, Texture2D tankOldLineTexture, SpriteBatch spriteBatch)
@@ -175,13 +201,13 @@ namespace Tanks
 
 		private bool hasSavedWaypoints = true;
 
-		public void update(float timeStep)
+		public void update(double elapsedTimeStep)
 		{
 			//Move towards waypoints here
 			if (waypoints.Count > 0 && canMove())
 			{
 				hasSavedWaypoints = false;
-				bool waypointMoveSuccess = moveTowardsPoint(waypoints[0], timeStep);
+				bool waypointMoveSuccess = moveTowardsPoint(waypoints[0], (float)elapsedTimeStep);
 				if (waypointMoveSuccess)
 				{
 					completedWaypoints.Add(new Vector2(waypoints[0].X, waypoints[0].Y));

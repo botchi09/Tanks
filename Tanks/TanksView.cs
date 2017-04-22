@@ -27,15 +27,23 @@ namespace Tanks
 		private Texture2D oldLineTexture;
 		private Texture2D coverTexture;
 
+		private GraphicsDevice graphics;
+
 		private Dictionary<TankTeam, Texture2D> teamTextures;
 
-		public TanksView(TanksModel tanksModel, GameStateModel gameStateModel, TanksController tanksController, CoverController coverController, ButtonController buttonController)
+		private Texture2D inkTexture;
+
+		public TanksView(GraphicsDevice graphics, TanksModel tanksModel, GameStateModel gameStateModel, TanksController tanksController, CoverController coverController, ButtonController buttonController)
 		{
+			this.graphics = graphics;
 			this.tanksModel = tanksModel;
 			this.gameStateModel = gameStateModel;
 			this.tanksController = tanksController;
 			this.coverController = coverController;
 			this.buttonController = buttonController;
+
+			inkTexture = new Texture2D(graphics, 1, 1, false, SurfaceFormat.Color);
+			inkTexture.SetData<Color>(new Color[] { Color.White });
 
 		}
 		
@@ -47,10 +55,22 @@ namespace Tanks
 			this.coverTexture = coverTexture;
 		}
 
-		public void draw(SpriteBatch spriteBatch, GameTime gameTime)
+		private void drawTanks(Texture2D inkTexture, Dictionary<TankTeam, Texture2D> teamTextures, Texture2D tankOldLineTexture, SpriteBatch spriteBatch)
 		{
+			tanksController.getTanks().ForEach(delegate (Tank tank)
+			{
+				tank.draw(teamTextures[tank.getTeam()], tankOldLineTexture, spriteBatch);
 
-			
+				//Only draw the ink monitor if we're actively moving tank
+				if (tanksModel.lastSelectedTank.Equals(tank))
+				{
+					tank.drawInkMonitor(inkTexture, spriteBatch);
+				}
+			});
+		}
+
+		public void draw(SpriteBatch spriteBatch)
+		{
 
 			if (!gameStateModel.coverDrawingMode)
 			{
@@ -66,12 +86,10 @@ namespace Tanks
 				coverItem.draw(coverTexture, spriteBatch);
 			});
 
-			tanksController.draw(teamTextures, oldLineTexture, spriteBatch);
+			drawTanks(inkTexture, teamTextures, oldLineTexture, spriteBatch);
 			tanksModel.tankLineHistory.draw(oldLineTexture, spriteBatch);
 
 			buttonController.draw(spriteBatch);
-
-			tanksModel.inkMonitor.draw(spriteBatch, new Vector2(300, 300));
 
 		}
 	}

@@ -23,6 +23,11 @@ namespace Tanks
 			this.tanksModel = tanksModel;
 		}
 
+		public void setLastSelectedTank(Tank tank)
+		{
+			tanksModel.lastSelectedTank = tank;
+		}
+
 		public void setTanks(List<Tank> tanks)
 		{
 			this.tanksModel.tanks = tanks;
@@ -89,7 +94,7 @@ namespace Tanks
 			}
 		}
 
-		public void update(float timeStep)
+		public void update(double timeStep)
 		{
 			getTanks().ForEach(delegate (Tank tank)
 			{
@@ -97,12 +102,6 @@ namespace Tanks
 			});
 		}
 
-		public void draw(Dictionary<TankTeam, Texture2D> teamTextures, Texture2D tankOldLineTexture, SpriteBatch spriteBatch)
-		{
-			getTanks().ForEach(delegate (Tank tank)
-			{
-				tank.draw(teamTextures[tank.getTeam()], tankOldLineTexture, spriteBatch);
-			});
-		}
+		
 	}
 }

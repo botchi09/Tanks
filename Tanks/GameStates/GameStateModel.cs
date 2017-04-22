@@ -21,10 +21,22 @@ namespace Tanks
 		 */
 		public bool coverDrawingMode { get; set; }
 
+		public TankTeam currentTeamActive;
+
+		public GamePhase gamePhase;
+
+		public TankTeam? victor;
+
+		public float gameStateTimer;
+
 		public GameStateModel()
 		{
 			coverDrawingMode = false;
+			currentTeamActive = TankTeam.ONE;
+			gamePhase = GamePhase.P1_DRAW;
+			victor = null;
 		}
+
 
 	}
 }
