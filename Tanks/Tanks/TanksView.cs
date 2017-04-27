@@ -62,7 +62,7 @@ namespace Tanks
 				tank.draw(teamTextures[tank.getTeam()], tankOldLineTexture, spriteBatch);
 
 				//Only draw the ink monitor if we're actively moving tank
-				if (tanksModel.lastSelectedTank.Equals(tank))
+				if (tanksModel.selectedTank != null && tanksModel.selectedTank.Equals(tank))
 				{
 					tank.drawInkMonitor(inkTexture, spriteBatch);
 				}

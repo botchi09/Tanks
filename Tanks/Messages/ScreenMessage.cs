@@ -44,7 +44,7 @@ namespace Tanks
 						graphicsDevice.Viewport.Height / 2);
 				Vector2 FontOrigin = font.MeasureString(showingText) / 2;
 				// Draw the string
-				spriteBatch.DrawString(font, showingText, fontPos, Color.LightGreen,
+				spriteBatch.DrawString(font, showingText, fontPos, Color.Black,
 					0, FontOrigin, 1.0f, SpriteEffects.None, 1.0f);
 				spriteBatch.End();
 			}

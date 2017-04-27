@@ -67,11 +67,14 @@
     <Compile Include="Cover\CoverCollision.cs" />
     <Compile Include="Cover\CoverCollisionResult.cs" />
     <Compile Include="Cover\CoverController.cs" />
+    <Compile Include="Explosions\ExplosionController.cs" />
+    <Compile Include="Explosions\ExplosionModel.cs" />
+    <Compile Include="Explosions\ExplosionView.cs" />
     <Compile Include="GameStates\GamePhase.cs" />
     <Compile Include="GameStates\GameStateCallbacks.cs" />
     <Compile Include="Gestures\DetectedGesture.cs" />
     <Compile Include="Cover\Cover.cs" />
-    <Compile Include="Explosion.cs" />
+    <Compile Include="Explosions\Explosion.cs" />
     <Compile Include="Game1.cs" />
     <Compile Include="GameStates\GameStateController.cs" />
     <Compile Include="GameStates\GameStateModel.cs" />
@@ -84,8 +87,8 @@
     <Compile Include="Messages\ScreenMessage.cs" />
     <Compile Include="Tanks\TankCollision.cs" />
     <Compile Include="Tanks\TankCollisionResult.cs" />
-    <Compile Include="TanksModel.cs" />
-    <Compile Include="TanksView.cs" />
+    <Compile Include="Tanks\TanksModel.cs" />
+    <Compile Include="Tanks\TanksView.cs" />
     <Compile Include="Tanks\TankTeam.cs" />
     <Compile Include="UserInterfaceController.cs" />
     <Compile Include="Line.cs" />
@@ -95,7 +98,7 @@
     <Compile Include="TanksGame.cs" />
     <Compile Include="Vector2Ext.cs" />
     <Compile Include="Tanks\TankLineHistory.cs" />
-    <Compile Include="TanksController.cs" />
+    <Compile Include="Tanks\TanksController.cs" />
     <Compile Include="UtilityFuncs.cs" />
   </ItemGroup>
   <ItemGroup>

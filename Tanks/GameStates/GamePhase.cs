@@ -17,6 +17,7 @@ namespace Tanks
 		P1_DRAW,
 		P2_DRAW,
 		P1_FIGHT,
-		P2_FIGHT
+		P2_FIGHT,
+		MATCH_COMPLETE
 	}
 }

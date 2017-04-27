@@ -20,12 +20,24 @@ namespace Tanks
 		{
 			public Tank tank;
 			public List<Vector2> completedWaypoints;
+			private bool canUndo = true;
 
 			public TankWaypoints(Tank tank, List<Vector2> completedWaypoints)
 			{
 				this.tank = tank;
 				this.completedWaypoints = completedWaypoints;
 			}
+
+			public void disableUndo()
+			{
+				canUndo = false;
+			}
+
+			public bool isUndoable()
+			{
+				return canUndo;
+			}
+
 		}
 
 		private List<TankWaypoints> previousTankWaypoints = new List<TankWaypoints>();
@@ -34,12 +46,15 @@ namespace Tanks
 		{
 			if (previousTankWaypoints.Count > 0 && previousTankWaypoints[0].completedWaypoints.Count > 0) //Previous waypoints must exist
 			{
-				previousTankWaypoints[0].tank.clearWaypoints();
+				if (previousTankWaypoints[0].isUndoable())
+				{
+					previousTankWaypoints[0].tank.clearWaypoints();
 
-				Vector2 tankStartPoint = previousTankWaypoints[0].completedWaypoints[0]; //The first waypoint
-				previousTankWaypoints[0].tank.setPosition(tankStartPoint); //Reset to original start point
-				previousTankWaypoints[0].tank.faceVector(previousTankWaypoints[0].completedWaypoints[0]); //Face the first point- we can't get back the original rotation so compromise.
-				previousTankWaypoints.RemoveAt(0);
+					Vector2 tankStartPoint = previousTankWaypoints[0].completedWaypoints[0]; //The first waypoint
+					previousTankWaypoints[0].tank.setPosition(tankStartPoint); //Reset to original start point
+					previousTankWaypoints[0].tank.faceVector(previousTankWaypoints[0].completedWaypoints[0]); //Face the first point- we can't get back the original rotation so compromise.
+					previousTankWaypoints.RemoveAt(0);
+				}
 			}
 		}
 
@@ -63,6 +78,26 @@ namespace Tanks
 		public void tankMoveComplete(Tank tank, List<Vector2> completedWaypoints)
 		{
 			addTankAndWaypoints(tank, completedWaypoints);
+		}
+
+		//Each new turn disables previous undos and flags them for slow deletion.
+		public void disableCurrentUndoables()
+		{
+			previousTankWaypoints.ForEach(delegate (TankWaypoints tankWaypoints)
+			{
+				tankWaypoints.disableUndo();
+			});
+		}
+
+		public void disableTankUndo(Tank tank)
+		{
+			previousTankWaypoints.ForEach(delegate (TankWaypoints tankWaypoints)
+			{
+				if (tankWaypoints.tank.Equals(tank))
+				{
+					tankWaypoints.disableUndo();
+				}
+			});
 		}
 	}
 

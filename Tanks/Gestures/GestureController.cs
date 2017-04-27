@@ -11,6 +11,7 @@ using Android.Views;
 using Android.Widget;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input.Touch;
+using Tanks.Explosions;
 
 namespace Tanks
 {
@@ -20,6 +21,7 @@ namespace Tanks
 		private ButtonController buttonController;
 		private TanksController tanksController;
 		private CoverController coverController;
+		private ExplosionController explosionController;
 		private TanksModel tanksModel;
 		private GameStateModel gameStateModel;
 		private Vector2 lastTouchPosition;
@@ -68,7 +70,7 @@ namespace Tanks
 		}
 
 		public GestureController(TanksModel tanksModel, GameStateModel gameStateModel,
-			TanksController tanksController, CoverController coverController, ButtonController buttonController, GestureDetect gestureDetect)
+			TanksController tanksController, CoverController coverController, ButtonController buttonController, GestureDetect gestureDetect, ExplosionController explosionController)
 		{
 			this.tanksModel = tanksModel;
 			this.gameStateModel = gameStateModel;
@@ -76,17 +78,24 @@ namespace Tanks
 			this.coverController = coverController;
 			this.buttonController = buttonController;
 			this.gestureDetect = gestureDetect;
+			this.explosionController = explosionController;
 
 		}
 
 		private bool authorisedToMoveTank(Tank tank)
 		{
-			switch(tank.getTeam())
+			if (tank != null)
 			{
-				case TankTeam.ONE:
-					return gameStateModel.gamePhase == GamePhase.P1_FIGHT;
-				case TankTeam.TWO:
-					return gameStateModel.gamePhase == GamePhase.P2_FIGHT;
+
+
+				switch (tank.getTeam())
+				{
+					case TankTeam.ONE:
+						return gameStateModel.gamePhase == GamePhase.P1_FIGHT;
+					case TankTeam.TWO:
+						return gameStateModel.gamePhase == GamePhase.P2_FIGHT;
+				}
+				return false;
 			}
 			return false;
 		}
@@ -109,6 +118,7 @@ namespace Tanks
 						if (authorisedToMoveTank(proposedTank))
 						{
 							selectedTank = proposedTank;
+							tanksModel.selectedTank = selectedTank;
 						}
 					}
 
@@ -133,7 +143,7 @@ namespace Tanks
 							{
 								Vector2 direction = Vector2.Multiply(detectedGesture.Delta, 6);
 
-								selectedTank.shoot(direction, coverController, tanksController);
+								selectedTank.shoot(direction, explosionController, coverController, tanksController);
 
 							}
 							break;

@@ -11,6 +11,7 @@ using Android.Views;
 using Android.Widget;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Tanks.Explosions;
 
 namespace Tanks
 {
@@ -29,6 +30,7 @@ namespace Tanks
 		private bool movementEnabled = true;
 		private bool engineDisabled = false;
 		private bool gunsDisabled = false;
+		private bool hasAmmo = true; //When false, tank will not be allowed to move (as they have just shot)
 		private bool isAlive = true;
 
 		private TankLineHistory moveCompleteHistoryCallback;
@@ -57,7 +59,7 @@ namespace Tanks
 
 		public bool canMove()
 		{
-			return (movementEnabled && !engineDisabled);
+			return (movementEnabled && !engineDisabled && hasAmmo);
 		}
 
 		public void disableEngine()
@@ -70,8 +72,9 @@ namespace Tanks
 			gunsDisabled = true;
 		}
 
-		public void blowUp()
+		public void blowUp(ExplosionController explosionController)
 		{
+			explosionController.Explosion(getPosition(), 100);
 			disableEngine();
 			disableGuns();
 			isAlive = false;
@@ -92,16 +95,30 @@ namespace Tanks
 			return position;
 		}
 
+		//Reset a dead tank to full health
 		public void resetHealth()
 		{
 			movementEnabled = true;
 			gunsDisabled = false;
 			isAlive = true;
+			hasAmmo = true;
+			resetMove();
 		}
 
 		public void resetMove()
 		{
 			inkMonitor.resetInk();
+		}
+
+		//Called to reset tank at the end of a turn
+		public void resetEndOfTurn()
+		{
+			if (isAlive)
+			{
+				resetMove();
+				gunsDisabled = false;
+				hasAmmo = true;
+			}
 		}
 
 		public void setRotation(int degrees)
@@ -117,8 +134,9 @@ namespace Tanks
 
 		public void drawInkMonitor(Texture2D inkTexture, SpriteBatch spriteBatch)
 		{
-
+			spriteBatch.Begin();
 			spriteBatch.Draw(inkTexture, new Rectangle((int)position.X, (int)position.Y, 100, (int)(300 * getInkLevel())), Color.Black);
+			spriteBatch.End();
 		}
 
 		public void draw(Texture2D tankTexture, Texture2D tankOldLineTexture, SpriteBatch spriteBatch)
@@ -246,9 +264,9 @@ namespace Tanks
 			return position == goal;
 		}
 
-		public void shoot(Vector2 direction, CoverController coverController, TanksController tanksController)
+		public void shoot(Vector2 direction, ExplosionController explosionController, CoverController coverController, TanksController tanksController)
 		{
-			if (!gunsDisabled)
+			if (!gunsDisabled && isAlive && hasAmmo)
 			{
 				List<Cover> allCover = coverController.getCoverList();
 				CoverCollision coverCollision = new CoverCollision();
@@ -271,15 +289,23 @@ namespace Tanks
 					}
 					else
 					{
-						shotTraceResult.getTankHit().blowUp();
+						shotTraceResult.getTankHit().blowUp(explosionController);
 						System.Diagnostics.Debug.WriteLine("Tank wrecked!");
 					}
 				}
 
-				Explosion explosion = new Explosion(explosionPoint, 100, coverController, tanksController);
+				if (explosionPoint != null)
+				{
+					shotLine.getPoints()[1] = explosionPoint;
+				}
+
+				explosionController.Explosion(explosionPoint, 100);
 				lastShot = shotLine;
 				System.Diagnostics.Debug.WriteLine("Shooting guns!");
-				coverController.setCoverList(explosion.Explode());
+				moveCompleteHistoryCallback.disableTankUndo(this);
+
+				//Once a tank shoots, its turn is fully over.
+				hasAmmo = false;
 			}
 
 		}

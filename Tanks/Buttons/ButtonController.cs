@@ -22,21 +22,23 @@ namespace Tanks
 
 		UserInterfaceController userInterfaceController;
 
-		public ButtonController(UserInterfaceController userInterfaceController)
+		public ButtonController(UserInterfaceController userInterfaceController, GraphicsDevice graphicsDevice)
 		{
 			this.userInterfaceController = userInterfaceController;
-			initButtons();
+			initButtons(graphicsDevice);
 		}
 
 		//TODO: Define functions permitting main prog ability to show and hide different button groups
 
 		//Define buttons here.
-		private void initButtons()
+		private void initButtons(GraphicsDevice graphicsDevice)
 		{
 			int ingameButtonWidthHeight = 100; //Hardcoding this is bad, but currently the best solution
+			int heightOffset = 0;
+			int buttonPosition = graphicsDevice.Viewport.Height - ingameButtonWidthHeight + heightOffset;
 
-			Button undoButton = new Button(ButtonType.Undo, ingameButtonWidthHeight, ingameButtonWidthHeight, this, new Vector2(1700, 700));
-			Button endTurnButton = new Button(ButtonType.EndTurn, ingameButtonWidthHeight, ingameButtonWidthHeight, this, new Vector2(1700, 900));
+			Button undoButton = new Button(ButtonType.Undo, ingameButtonWidthHeight, ingameButtonWidthHeight, this, new Vector2((graphicsDevice.Viewport.Width / 2) - 100, buttonPosition));
+			Button endTurnButton = new Button(ButtonType.EndTurn, ingameButtonWidthHeight, ingameButtonWidthHeight, this, new Vector2((graphicsDevice.Viewport.Width / 2) + 100, buttonPosition));
 
 			buttons.Add(ButtonType.Undo, undoButton);
 			buttons.Add(ButtonType.EndTurn, endTurnButton);

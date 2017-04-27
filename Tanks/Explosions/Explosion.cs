@@ -13,6 +13,7 @@ using Path = System.Collections.Generic.List<ClipperLib.IntPoint>;
 using Paths = System.Collections.Generic.List<System.Collections.Generic.List<ClipperLib.IntPoint>>;
 using ClipperLib;
 using Microsoft.Xna.Framework;
+using Tanks.Explosions;
 
 namespace Tanks
 {
@@ -22,8 +23,15 @@ namespace Tanks
 		private List<Cover> coverList = new List<Cover>();
 		private Vector2 centre;
 		private CoverController coverController;
+		private TanksController tanksController;
+		private ExplosionController explosionController;
+		private int id;
 
-		
+		//Custom numerical identifier used to identify explosion.
+		public int getId()
+		{
+			return id;
+		}
 
 		//Clamps an int between two values
 		//http://stackoverflow.com/a/3040551
@@ -33,25 +41,50 @@ namespace Tanks
 		}
 
 		//TODO: Decide if we should have radial explosions also damage tanks.
-		public Explosion(Vector2 centre, int radius, CoverController coverController, TanksController tanksController)
+		public Explosion(int id, Vector2 centre, int radius, CoverController coverController, TanksController tanksController, ExplosionController explosionController)
 		{
-			this.coverList = coverController.getCoverList();
+			this.id = id;
 			this.centre = centre;
 			this.radius = radius;
 			this.coverController = coverController;
+			this.tanksController = tanksController;
+			this.explosionController = explosionController;
+
+		}
+
+		public Vector2 getPosition()
+		{
+			return centre;
+		}
+
+		public int getRadius()
+		{
+			return radius;
 		}
 
 		//Required as constructors cannot return values
 		public List<Cover> Explode()
 		{
-			return ExplosionAt(centre, radius, coverList);
+			return ExplosionAt(centre, radius, coverController.getCoverList());
 		}
 
-		
+		private void blowUpTanksInArea(Vector2 centre, int radius)
+		{
+			List<Tank> affectedTanks = new List<Tank>();
+			tanksController.getTanks().ForEach(delegate (Tank tank)
+			{
+				if (Vector2.Distance(tank.getPosition(), centre) <= radius && tank.getAlive())
+				{
+					tank.blowUp(explosionController);
+				}
+			});
+		}
 
-		//TODO: MUST NOT MODIFY LINES INDIVIDUALLY! PASS COVER AS GROUP TO CLIPPER!
 		private List<Cover> ExplosionAt(Vector2 centre, int radius, List<Cover> allCover)
 		{
+
+			//blowUpTanksInArea(centre, 30);
+
 			List<Cover> newCoverList = new List<Cover>();
 
 			allCover.ForEach(delegate (Cover cover)
@@ -80,7 +113,7 @@ namespace Tanks
 
 						newCoverList.Add(newCover);
 					});
-					
+
 				}
 
 			});
@@ -88,7 +121,7 @@ namespace Tanks
 			return newCoverList;
 		}
 
-		
+
 	}
 
 }

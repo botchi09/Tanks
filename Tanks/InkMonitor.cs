@@ -23,9 +23,6 @@ namespace Tanks
 		public InkMonitor()
 		{
 			resetInk();
-			texture = new Texture2D(graphics, 1, 1, false, SurfaceFormat.Color);
-			texture.SetData<Color>(new Color[] { Color.White });
-			return texture;
 		}
 
 		public void resetInk()

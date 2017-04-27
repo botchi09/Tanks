@@ -20,6 +20,7 @@ namespace Tanks
 		public Line coverLine { get; set; }
 		public TankLineHistory tankLineHistory { get; set; }
 		public List<Tank> tanks { get; set; }
+		public Tank selectedTank { get; set; }
 
 		public TanksModel()
 		{
@@ -29,6 +30,7 @@ namespace Tanks
 			coverList = new List<Cover>();
 			coverLine = new Line();
 			tanks = new List<Tank>();
+			selectedTank = null;
 		}
 
 	}

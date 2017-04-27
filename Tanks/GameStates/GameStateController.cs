@@ -29,6 +29,17 @@ namespace Tanks
 			this.messageController = messageController;
 		}
 
+		private void resetTanks(TankTeam team)
+		{
+			tanksController.getTanks().ForEach(delegate (Tank tank)
+			{
+				if (tank.getTeam() == team)
+				{
+					tank.resetEndOfTurn();
+				}
+			});
+		}
+
 		//Returns enum of winning team.
 		//TODO: Refactor to allow any number of tanks per team.
 		private TankTeam? checkVictor()
@@ -112,6 +123,10 @@ namespace Tanks
 			}
 		}
 
+		private void fightTurnEnd(TankTeam team)
+		{
+			resetTanks(team);
+		}
 
 		/* More than 2 players out of spec and un-needed
 		 * 1: P1 Cover draw phase
@@ -139,11 +154,15 @@ namespace Tanks
 					gameStateModel.gamePhase = GamePhase.P2_FIGHT;
 					System.Diagnostics.Debug.WriteLine("P2 fight phase");
 					messageController.dispatchMessage(GamePhase.P2_FIGHT);
+					fightTurnEnd(TankTeam.ONE);
+
 					break;
 				case GamePhase.P2_FIGHT:
 					gameStateModel.gamePhase = GamePhase.P1_FIGHT;
 					System.Diagnostics.Debug.WriteLine("P1 fight phase");
 					messageController.dispatchMessage(GamePhase.P1_FIGHT);
+					fightTurnEnd(TankTeam.TWO);
+
 					break;
 			}
 		}

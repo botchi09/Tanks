@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System;
 using Tanks.Buttons;
 using Tanks.Messages;
+using Tanks.Explosions;
 
 namespace Tanks
 {
@@ -39,9 +40,12 @@ namespace Tanks
 
 		private TanksView tanksView;
 
+		private ExplosionModel explosionModel;
+		private ExplosionController explosionController;
+		private ExplosionView explosionView;
+
 		private GestureDetect gestureDetect;
 
-		private InkMonitor inkMonitor;
 
 		private GameStateCallbacks gameStateCallbacks;
 
@@ -105,17 +109,23 @@ namespace Tanks
 			tanksController.createTank(new Vector2(100, 216 * 3), TankTeam.ONE, tanksModel.tankLineHistory);
 			tanksController.createTank(new Vector2(100, 216 * 4), TankTeam.ONE, tanksModel.tankLineHistory);*/
 
+			//TODO: Remove model from any non-constroller constructors.
 			coverController = new CoverController(tanksModel);
 
-			buttonController = new ButtonController(userInterfaceController);
-			gestureController = new GestureController(tanksModel, gameStateModel, tanksController, coverController, buttonController, gestureDetect);
+			buttonController = new ButtonController(userInterfaceController, graphics.GraphicsDevice);
 
-			tanksView = new TanksView(graphics, tanksModel, gameStateModel, tanksController, coverController, buttonController);
+			tanksView = new TanksView(graphics.GraphicsDevice, tanksModel, gameStateModel, tanksController, coverController, buttonController);
 			gameStateCallbacks = new GameStateCallbacks(this);
 
 			screenMessage = new ScreenMessage();
 			messageView = new MessageView(screenMessage);
 			messageController = new MessageController(messageView);
+
+			explosionModel = new ExplosionModel();
+			explosionController = new ExplosionController(explosionModel, tanksController, coverController);
+			explosionView = new ExplosionView(explosionController);
+
+			gestureController = new GestureController(tanksModel, gameStateModel, tanksController, coverController, buttonController, gestureDetect, explosionController);
 
 			gameStateController = new GameStateController(gameStateCallbacks, gameStateModel, tanksController, messageController);
 
@@ -159,6 +169,16 @@ namespace Tanks
 			buttonController.setButtonTextures(buttonTextures);
 
 			tanksView.setDrawTextures(lineTexture, oldLineTexture, tankTextures, coverTexture);
+
+			List<Texture2D> explosionTextures = new List<Texture2D>();
+
+			//We have ten explosion textures to utilise
+			for (var i=1; i<10; i++)
+			{
+				explosionTextures.Add(this.Content.Load<Texture2D>("explosions/Explosion" + i));
+			}
+
+			explosionView.setDrawTextures(explosionTextures);
 		}
 
 		/// <summary>
@@ -205,7 +225,7 @@ namespace Tanks
 		//Called by gameStateCallbacks
 		public void matchComplete()
 		{
-			
+			messageController.dispatchMessage(GamePhase.MATCH_COMPLETE);
 		}
 
 
@@ -231,7 +251,7 @@ namespace Tanks
 		/// <param name="gameTime">Provides a snapshot of timing values.</param>
 		protected override void Draw(GameTime gameTime)
 		{
-			GraphicsDevice.Clear(Color.CornflowerBlue);
+			GraphicsDevice.Clear(Color.White);
 
 			// TODO: Add your drawing code here
 
@@ -240,7 +260,7 @@ namespace Tanks
 			//GraphicsDevice is necessary to find resolution agnostic centre of screen
 			messageView.draw(graphics.GraphicsDevice, spriteBatch, font);
 
-
+			explosionView.draw(spriteBatch);
 
 			base.Draw(gameTime);
 		}

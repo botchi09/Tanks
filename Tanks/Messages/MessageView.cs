@@ -10,12 +10,14 @@ using Android.Runtime;
 using Android.Views;
 using Android.Widget;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework;
 
 namespace Tanks
 {
 	class MessageView
 	{
 		ScreenMessage screenMessage;
+		String messageToShow;
 
 		public MessageView(ScreenMessage screenMessage)
 		{
@@ -28,23 +30,34 @@ namespace Tanks
 			switch(message)
 			{
 				case GamePhase.P1_DRAW:
-					screenMessage.show("Player One: Draw Phase");
+					messageToShow = "Player One: Draw Phase";
 					break;
 				case GamePhase.P2_DRAW:
-					screenMessage.show("Player Two: Draw Phase");
+					messageToShow = "Player Two: Draw Phase";
 					break;
 				case GamePhase.P1_FIGHT:
-					screenMessage.show("Player One: Fight Phase");
+					messageToShow = "Player One: Fight Phase";
 					break;
 				case GamePhase.P2_FIGHT:
-					screenMessage.show("Player Two: Fight Phase");
+					messageToShow = "Player Two: Fight Phase";
 					break;
 			}
+			screenMessage.show(messageToShow);
 		}
 
 		public void draw(GraphicsDevice graphicsDevice, SpriteBatch spriteBatch, SpriteFont font)
 		{
 			screenMessage.draw(graphicsDevice, spriteBatch, font);
+
+			spriteBatch.Begin();
+			Vector2 fontPos = new Vector2(graphicsDevice.Viewport.Width / 2,
+						0 + 50);
+			Vector2 FontOrigin = font.MeasureString(messageToShow) / 2;
+			// Draw the string
+			spriteBatch.DrawString(font, messageToShow, fontPos, Color.Black,
+				0, FontOrigin, 0.5f, SpriteEffects.None, 1.0f);
+			spriteBatch.End();
+
 		}
 
 		public void update(double timeStep)
