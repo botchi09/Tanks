@@ -72,12 +72,12 @@ namespace Tanks
 
 			if (p1Dead && !p2Dead)
 			{
-				return TankTeam.ONE;
+				return TankTeam.TWO;
 			}
 
 			if (p2Dead && !p1Dead)
 			{
-				return TankTeam.TWO;
+				return TankTeam.ONE;
 			}
 
 			return null;
@@ -102,8 +102,7 @@ namespace Tanks
 			}
 			else
 			{
-				gameStateModel.victor = (TankTeam)victor;
-				gameStateCallbacks.matchComplete();
+				gameStateCallbacks.matchComplete((TankTeam)victor);
 				System.Diagnostics.Debug.WriteLine("Match complete!");
 
 			}
@@ -123,9 +122,15 @@ namespace Tanks
 			}
 		}
 
+		//Called when a fighting turn has ended for parameter team
 		private void fightTurnEnd(TankTeam team)
 		{
 			resetTanks(team);
+		}
+
+		public GamePhase getGamePhase()
+		{
+			return gameStateModel.gamePhase;
 		}
 
 		/* More than 2 players out of spec and un-needed
@@ -137,6 +142,7 @@ namespace Tanks
 		 * */
 		public void incrementGameState()
 		{
+			
 			switch (gameStateModel.gamePhase)
 			{
 				case GamePhase.P1_DRAW:

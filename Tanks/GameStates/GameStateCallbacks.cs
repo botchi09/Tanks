@@ -9,21 +9,30 @@ using Android.OS;
 using Android.Runtime;
 using Android.Views;
 using Android.Widget;
+using Tanks.Messages;
 
 namespace Tanks
 {
 	class GameStateCallbacks
 	{
-		private Game1 game;
+		private MessageController messageController;
 
-		public GameStateCallbacks(Game1 game)
+		public GameStateCallbacks(MessageController messageController)
 		{
-			this.game = game;
+			this.messageController = messageController;
 		}
 
-		public void matchComplete()
+		public void matchComplete(TankTeam victor)
 		{
-			game.matchComplete();
+			switch (victor)
+			{
+				case TankTeam.ONE:
+					messageController.dispatchMessage(GamePhase.P1_WIN);
+					break;
+				case TankTeam.TWO:
+					messageController.dispatchMessage(GamePhase.P2_WIN);
+					break;
+			}
 		}
 	}
 }

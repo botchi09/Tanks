@@ -42,12 +42,32 @@ namespace Tanks
 
 		private List<TankWaypoints> previousTankWaypoints = new List<TankWaypoints>();
 
+		private int calculateWaypointCost(List<Vector2> waypoints)
+		{
+			int totalCost = 0;
+			for (int i = 1; i < waypoints.Count; i++)
+			{
+				int waypointCost = (int)Vector2.Distance(waypoints[i-1], waypoints[i]); //Code duplication inside Tank.cs
+				totalCost += waypointCost;
+			}
+			return totalCost;
+		}
+
+		private void refundLastMove(Tank tank, List<Vector2> waypoints)
+		{
+			int inkToRefund = calculateWaypointCost(waypoints);
+			//Negative spend ink to give ink
+			tank.refundInk(inkToRefund);
+		}
+
 		public void undoLast()
 		{
 			if (previousTankWaypoints.Count > 0 && previousTankWaypoints[0].completedWaypoints.Count > 0) //Previous waypoints must exist
 			{
 				if (previousTankWaypoints[0].isUndoable())
 				{
+					refundLastMove(previousTankWaypoints[0].tank, previousTankWaypoints[0].completedWaypoints);
+
 					previousTankWaypoints[0].tank.clearWaypoints();
 
 					Vector2 tankStartPoint = previousTankWaypoints[0].completedWaypoints[0]; //The first waypoint

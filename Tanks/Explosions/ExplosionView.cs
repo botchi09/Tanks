@@ -42,7 +42,7 @@ namespace Tanks.Explosions
 				//TODO:Modulo operation using Max Explosions for consistent drawing
 				spriteBatch.Draw(explosionTextures[decal], explosions[i].getPosition(), null, Microsoft.Xna.Framework.Color.White,
 							 0,
-							 new Vector2(-halfRadius * scale, -halfRadius * scale),
+							 new Vector2(halfRadius, halfRadius),
 							 scale,
 							 SpriteEffects.None, 0f);
 				spriteBatch.End();

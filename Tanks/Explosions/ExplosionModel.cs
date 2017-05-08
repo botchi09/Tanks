@@ -20,7 +20,7 @@ namespace Tanks.Explosions
 		public ExplosionModel()
 		{
 			explosionRecord = new List<Explosion>();
-			maxExplosions = 10; //This will likely be how many different explosion decals we have
+			maxExplosions = 8; //This will likely be how many different explosion decals we have
 		}
 	}
 }

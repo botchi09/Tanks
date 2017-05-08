@@ -32,6 +32,8 @@ namespace Tanks
 		private Dictionary<TankTeam, Texture2D> teamTextures;
 
 		private Texture2D inkTexture;
+		private Texture2D disabledTexture;
+		private Texture2D deadTexture;
 
 		public TanksView(GraphicsDevice graphics, TanksModel tanksModel, GameStateModel gameStateModel, TanksController tanksController, CoverController coverController, ButtonController buttonController)
 		{
@@ -47,26 +49,28 @@ namespace Tanks
 
 		}
 		
-		public void setDrawTextures(Texture2D lineTexture, Texture2D oldLineTexture, Dictionary<TankTeam, Texture2D> teamTextures, Texture2D coverTexture)
+		public void setDrawTextures(Texture2D lineTexture, Texture2D oldLineTexture, Dictionary<TankTeam, Texture2D> teamTextures, Texture2D disabledTexture, Texture2D deadTexture, Texture2D coverTexture)
 		{
 			this.lineTexture = lineTexture;
 			this.oldLineTexture = oldLineTexture;
 			this.teamTextures = teamTextures;
+			this.disabledTexture = disabledTexture;
+			this.deadTexture = deadTexture;
 			this.coverTexture = coverTexture;
 		}
 
-		private void drawTanks(Texture2D inkTexture, Dictionary<TankTeam, Texture2D> teamTextures, Texture2D tankOldLineTexture, SpriteBatch spriteBatch)
+		private void drawTanks(Texture2D inkTexture, Dictionary<TankTeam, Texture2D> teamTextures, Texture2D disabledTexture, Texture2D tankOldLineTexture, SpriteBatch spriteBatch)
 		{
 			tanksController.getTanks().ForEach(delegate (Tank tank)
 			{
-				tank.draw(teamTextures[tank.getTeam()], tankOldLineTexture, spriteBatch);
-
-				//Only draw the ink monitor if we're actively moving tank
-				if (tanksModel.selectedTank != null && tanksModel.selectedTank.Equals(tank))
-				{
-					tank.drawInkMonitor(inkTexture, spriteBatch);
-				}
+				tank.draw(teamTextures[tank.getTeam()], disabledTexture, deadTexture, tankOldLineTexture, spriteBatch);
 			});
+
+			//Only draw the ink monitor if we're actively moving tank
+			if (tanksModel.selectedTank != null)
+			{
+				tanksModel.selectedTank.drawInkMonitor(inkTexture, spriteBatch);
+			}
 		}
 
 		public void draw(SpriteBatch spriteBatch)
@@ -86,7 +90,7 @@ namespace Tanks
 				coverItem.draw(coverTexture, spriteBatch);
 			});
 
-			drawTanks(inkTexture, teamTextures, oldLineTexture, spriteBatch);
+			drawTanks(inkTexture, teamTextures, disabledTexture, oldLineTexture, spriteBatch);
 			tanksModel.tankLineHistory.draw(oldLineTexture, spriteBatch);
 
 			buttonController.draw(spriteBatch);

@@ -135,11 +135,14 @@ namespace Tanks
 		public void drawInkMonitor(Texture2D inkTexture, SpriteBatch spriteBatch)
 		{
 			spriteBatch.Begin();
-			spriteBatch.Draw(inkTexture, new Rectangle((int)position.X, (int)position.Y, 100, (int)(300 * getInkLevel())), Color.Black);
+			spriteBatch.Draw(inkTexture, new Rectangle((int)position.X + 50, (int)position.Y + 50, 50, Convert.ToInt32(150 * getInkLevel())), Color.Black);
+			int a= (int)(150 * getInkLevel());
+			int b= Convert.ToInt32(150 * getInkLevel());
+			float ink = getInkLevel();
 			spriteBatch.End();
 		}
 
-		public void draw(Texture2D tankTexture, Texture2D tankOldLineTexture, SpriteBatch spriteBatch)
+		public void draw(Texture2D tankTexture, Texture2D disabledTexture, Texture2D deadTexture, Texture2D tankOldLineTexture, SpriteBatch spriteBatch)
 		{
 			Line currentOldWaypointLine = new Line();
 			currentOldWaypointLine.setPoints(completedWaypoints);
@@ -151,6 +154,24 @@ namespace Tanks
 							 new Vector2(tankTexture.Width / 2, tankTexture.Height / 2),
 							 1,
 							 SpriteEffects.None, 0f);
+			if (engineDisabled)
+			{
+				spriteBatch.Draw(disabledTexture, position + (new Vector2(0, 10)), null, Color.White,
+								 rotation,
+								 new Vector2(tankTexture.Width / 2, tankTexture.Height / 2),
+								 1,
+								 SpriteEffects.None, 0f);
+			}
+
+			if (!isAlive)
+			{
+				spriteBatch.Draw(deadTexture, position, null, Color.White,
+								 rotation,
+								 new Vector2(tankTexture.Width / 2, tankTexture.Height / 2),
+								 1,
+								 SpriteEffects.None, 0f);
+			}
+
 			spriteBatch.End();
 
 			if (lastShot != null)
@@ -159,9 +180,20 @@ namespace Tanks
 			}
 		}
 
-		public int getNewWaypointCost(Vector2 newWaypoint)
+		//
+		public int costBetweenTwoWaypoints(Vector2 waypointOne, Vector2 waypointTwo)
 		{
-			return (int)Vector2.Distance(waypoints.Last(), newWaypoint); //DistanceSquared will give us squared progression
+			return (int)Vector2.Distance(waypointOne, waypointTwo); //DistanceSquared will give us squared progression
+		}
+
+		private int getNewWaypointCost(Vector2 newWaypoint)
+		{
+			return costBetweenTwoWaypoints(waypoints.Last(), newWaypoint);
+		}
+
+		public void refundInk(int ink)
+		{
+			inkMonitor.spendInk(-ink); //Negative ink expenditure to refund ink
 		}
 
 		public void addWaypoint(Vector2 waypoint)

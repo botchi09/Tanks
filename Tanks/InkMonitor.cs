@@ -48,7 +48,7 @@ namespace Tanks
 
 		public float getInkPercent()
 		{
-			return (float)(ink / maxInk);
+			return ((float)ink / (float)maxInk);
 		}
 
 		public void draw(SpriteBatch spriteBatch, Vector2 offset)

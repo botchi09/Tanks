@@ -115,11 +115,13 @@ namespace Tanks
 			buttonController = new ButtonController(userInterfaceController, graphics.GraphicsDevice);
 
 			tanksView = new TanksView(graphics.GraphicsDevice, tanksModel, gameStateModel, tanksController, coverController, buttonController);
-			gameStateCallbacks = new GameStateCallbacks(this);
 
 			screenMessage = new ScreenMessage();
 			messageView = new MessageView(screenMessage);
 			messageController = new MessageController(messageView);
+
+			gameStateCallbacks = new GameStateCallbacks(messageController);
+
 
 			explosionModel = new ExplosionModel();
 			explosionController = new ExplosionController(explosionModel, tanksController, coverController);
@@ -168,7 +170,7 @@ namespace Tanks
 
 			buttonController.setButtonTextures(buttonTextures);
 
-			tanksView.setDrawTextures(lineTexture, oldLineTexture, tankTextures, coverTexture);
+			tanksView.setDrawTextures(lineTexture, oldLineTexture, tankTextures, this.Content.Load<Texture2D>("SmokeLines"), this.Content.Load<Texture2D>("dead"), coverTexture);
 
 			List<Texture2D> explosionTextures = new List<Texture2D>();
 
@@ -221,13 +223,6 @@ namespace Tanks
 		{
 			gameStateController.endTurn();
 		}
-
-		//Called by gameStateCallbacks
-		public void matchComplete()
-		{
-			messageController.dispatchMessage(GamePhase.MATCH_COMPLETE);
-		}
-
 
 		public void undoLastAction()
 		{

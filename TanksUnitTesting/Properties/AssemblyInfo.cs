@@ -1,16 +1,15 @@
 ﻿using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using Android.App;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Tanks")]
-[assembly: AssemblyProduct("Tanks")]
-[assembly: AssemblyConfiguration("")]
+[assembly: AssemblyTitle("TanksUnitTesting")]
 [assembly: AssemblyDescription("")]
+[assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
+[assembly: AssemblyProduct("TanksUnitTesting")]
 [assembly: AssemblyCopyright("Copyright ©  2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -21,7 +20,7 @@ using Android.App;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("031a976a-a505-4ed2-894e-d2d556dab2b8")]
+[assembly: Guid("5ef2c7f4-2646-4719-b55b-3bbed94fe10a")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -33,10 +32,5 @@ using Android.App;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("3.4.0.456")]
-[assembly: AssemblyFileVersion("3.4.0.456")]
-
-// Add some common permissions, these can be removed if not needed
-[assembly: UsesPermission(Android.Manifest.Permission.Internet)]
-[assembly: UsesPermission(Android.Manifest.Permission.WriteExternalStorage)]
-[assembly: InternalsVisibleTo("TanksUnitTesting")]
+[assembly: AssemblyVersion("1.0.0.0")]
+[assembly: AssemblyFileVersion("1.0.0.0")]

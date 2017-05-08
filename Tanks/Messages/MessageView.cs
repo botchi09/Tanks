@@ -27,7 +27,7 @@ namespace Tanks
 		//Translate GamePhase into string. Normally would be handled by localisation lib.
 		public void showMessage(GamePhase message)
 		{
-			switch(message)
+			switch (message)
 			{
 				case GamePhase.P1_DRAW:
 					messageToShow = "Player One: Draw Phase";
@@ -41,6 +41,14 @@ namespace Tanks
 				case GamePhase.P2_FIGHT:
 					messageToShow = "Player Two: Fight Phase";
 					break;
+				case GamePhase.P1_WIN:
+					messageToShow = "Match complete! Player one wins!";
+					break;
+				case GamePhase.P2_WIN:
+					messageToShow = "Match complete! Player two wins!";
+					break;
+
+
 			}
 			screenMessage.show(messageToShow);
 		}
