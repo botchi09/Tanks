@@ -39,12 +39,14 @@ namespace Tanks
 			return solution.ChildCount > 0;
 		}
 
+		//Detects partial or full intersection of shot line with tank.
+		//Partial = disabled, full = destroyed
 		public TankCollisionResult getShotTankCollision(Line intersectionLine, List<Tank> tanks, Tank shootingTank)
 		{
 
 			Tank tankHit = null;
 			bool disabled = false;
-			int disabledRadius = 28; //TODO: Refine these.
+			int disabledRadius = 28;
 			int destroyedRadius = 18;
 
 			if (tanks.Count > 0)

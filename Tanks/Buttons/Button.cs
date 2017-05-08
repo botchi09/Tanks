@@ -49,7 +49,6 @@ namespace Tanks
 			active = false;
 		}
 
-		//TODO: Decide if w/h should be texture2d agnostic
 		public Button(ButtonType buttonEnum, int width, int height, ButtonController buttonController, Vector2 position)
 		{
 			this.position = position;

@@ -61,6 +61,7 @@ namespace Tanks
 
 		private void drawTanks(Texture2D inkTexture, Dictionary<TankTeam, Texture2D> teamTextures, Texture2D disabledTexture, Texture2D tankOldLineTexture, SpriteBatch spriteBatch)
 		{
+			//Draw each tank with their team icons
 			tanksController.getTanks().ForEach(delegate (Tank tank)
 			{
 				tank.draw(teamTextures[tank.getTeam()], disabledTexture, deadTexture, tankOldLineTexture, spriteBatch);
@@ -78,22 +79,22 @@ namespace Tanks
 
 			if (!gameStateModel.coverDrawingMode)
 			{
-				tanksModel.tankFollowLine.drawLines(lineTexture, spriteBatch);
+				tanksModel.tankFollowLine.drawLines(lineTexture, spriteBatch); //Draw preview tank waypoint line
 			}
 			else
 			{
-				tanksModel.coverLine.drawLines(lineTexture, spriteBatch);
+				tanksModel.coverLine.drawLines(lineTexture, spriteBatch); //Draw preview cover line
 			}
 
 			coverController.getCoverList().ForEach(delegate (Cover coverItem)
 			{
-				coverItem.draw(coverTexture, spriteBatch);
+				coverItem.draw(coverTexture, spriteBatch); //Draw each and every bit of cover
 			});
 
-			drawTanks(inkTexture, teamTextures, disabledTexture, oldLineTexture, spriteBatch);
-			tanksModel.tankLineHistory.draw(oldLineTexture, spriteBatch);
-
-			buttonController.draw(spriteBatch);
+			drawTanks(inkTexture, teamTextures, disabledTexture, oldLineTexture, spriteBatch); //Draw every tanks
+			tanksModel.tankLineHistory.draw(oldLineTexture, spriteBatch); //Draw everything that's happened so far
+			 
+			buttonController.draw(spriteBatch); //Draw buttons onto the screen
 
 		}
 	}

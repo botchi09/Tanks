@@ -140,6 +140,7 @@ namespace Tanks
 		/// LoadContent will be called once per game and is the place to load
 		/// all of your content.
 		/// </summary>
+		//TODO: Delegate to own content loader class
 		protected override void LoadContent()
 		{
 			// Create a new SpriteBatch, which can be used to draw textures.
@@ -207,13 +208,10 @@ namespace Tanks
 			// TODO: Add your update logic here
 			double timeStep = gameTime.TotalGameTime.TotalMilliseconds;
 
-			/*if (tankFollowLine != null)
-			{
-				selectedTank.update(timeStep);
-			}*/
+			
 			gestureController.update(timeStep);
 
-			tanksController.update(gameTime.ElapsedGameTime.TotalSeconds); //Uses ElapsedTime to ensure smooth tank movement
+			tanksController.update(gameTime.ElapsedGameTime.TotalSeconds); //Uses ElapsedTime to ensure smooth tank movement framerate independently
 			messageController.update(timeStep);
 
 			base.Update(gameTime);
@@ -248,7 +246,6 @@ namespace Tanks
 		{
 			GraphicsDevice.Clear(Color.White);
 
-			// TODO: Add your drawing code here
 
 			tanksView.draw(spriteBatch);
 

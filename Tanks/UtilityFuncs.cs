@@ -13,6 +13,7 @@ using Microsoft.Xna.Framework;
 
 namespace Tanks
 {
+	//TODO: Ensure class is deprecated before removing
 	public static class UtilityFuncs
 	{
 		public static int Clamp(int value, int min, int max)

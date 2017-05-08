@@ -55,8 +55,10 @@ namespace Tanks
 
 		public void draw(GraphicsDevice graphicsDevice, SpriteBatch spriteBatch, SpriteFont font)
 		{
+			//Draws the screenwide popup message
 			screenMessage.draw(graphicsDevice, spriteBatch, font);
 
+			//Draws the top of screen banner
 			spriteBatch.Begin();
 			Vector2 fontPos = new Vector2(graphicsDevice.Viewport.Width / 2,
 						0 + 50);

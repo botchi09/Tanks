@@ -216,6 +216,7 @@ namespace Tanks
 			}
 		}
 
+		//Used for undo functionality
 		private void makeCallback()
 		{
 			moveCompleteHistoryCallback.tankMoveComplete(this, completedWaypoints.GetRange(0, completedWaypoints.Count));
@@ -256,6 +257,7 @@ namespace Tanks
 			//Move towards waypoints here
 			if (waypoints.Count > 0 && canMove())
 			{
+				//Move towards the next waypoint until we can't move any more
 				hasSavedWaypoints = false;
 				bool waypointMoveSuccess = moveTowardsPoint(waypoints[0], (float)elapsedTimeStep);
 				if (waypointMoveSuccess)
@@ -296,9 +298,10 @@ namespace Tanks
 			return position == goal;
 		}
 
+		//Cast a ray in direction, try and hit something. If hit, make an explosion.
 		public void shoot(Vector2 direction, ExplosionController explosionController, CoverController coverController, TanksController tanksController)
 		{
-			if (!gunsDisabled && isAlive && hasAmmo)
+			if (!gunsDisabled && isAlive && hasAmmo) //Must be alive and not have shot
 			{
 				List<Cover> allCover = coverController.getCoverList();
 				CoverCollision coverCollision = new CoverCollision();

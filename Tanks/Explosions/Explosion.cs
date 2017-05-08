@@ -40,7 +40,6 @@ namespace Tanks
 			return (value < min) ? min : (value > max) ? max : value;
 		}
 
-		//TODO: Decide if we should have radial explosions also damage tanks.
 		public Explosion(int id, Vector2 centre, int radius, CoverController coverController, TanksController tanksController, ExplosionController explosionController)
 		{
 			this.id = id;
@@ -68,6 +67,8 @@ namespace Tanks
 			return ExplosionAt(centre, radius, coverController.getCoverList());
 		}
 
+		//Finds all tanks in radius of centre, then calls blow up.
+		//TODO: Fix this. Right now it's an infinite loop!
 		private void blowUpTanksInArea(Vector2 centre, int radius)
 		{
 			List<Tank> affectedTanks = new List<Tank>();
@@ -80,6 +81,7 @@ namespace Tanks
 			});
 		}
 
+		//Creates an explosion at specified coordinates of radius size, returning deformed allCover
 		private List<Cover> ExplosionAt(Vector2 centre, int radius, List<Cover> allCover)
 		{
 

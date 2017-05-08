@@ -33,8 +33,11 @@ namespace Tanks.Explosions
 		public void draw(SpriteBatch spriteBatch)
 		{
 			List<Explosion> explosions = explosionController.getExplosionRecord();
+
+			//Draw every explosion
 			for (int i=0;i<explosions.Count;i++)
 			{
+				//Ensure we don't try to access Explosion14 or so, when we only have textures up to 8
 				int decal = i % explosionController.getMaxExplosions();
 				spriteBatch.Begin();
 				int halfRadius = explosions[i].getRadius() / 2;

@@ -109,6 +109,7 @@ namespace Tanks
 			});
 		}
 
+		//So that on new turns, we can't undo old turns
 		public void disableTankUndo(Tank tank)
 		{
 			previousTankWaypoints.ForEach(delegate (TankWaypoints tankWaypoints)

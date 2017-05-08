@@ -26,6 +26,7 @@ namespace Tanks.Explosions
 			this.coverController = coverController;
 		}
 
+		//Create a new explosion and add it to the explosion model
 		public void Explosion(Vector2 centre, int radius)
 		{
 			Explosion explosion = new Explosion(explosionModel.explosionRecord.Count + 1, centre, radius, coverController, tanksController, this);

@@ -15,7 +15,7 @@ using Microsoft.Xna.Framework;
 namespace Tanks
 {
 
-	//Simple conversion between Vector2 and IntPoint
+	//Simple conversion global between Vector2 and IntPoint
 	public static class Vector2Ext
 	{
 		public static Vector2 ToVector2(this IntPoint point)

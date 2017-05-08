@@ -37,7 +37,7 @@ namespace Tanks
 
 		public void draw(GraphicsDevice graphicsDevice, SpriteBatch spriteBatch, SpriteFont font)
 		{
-			if (shouldShow)
+			if (shouldShow) //Only draw popup when required
 			{
 				spriteBatch.Begin();
 				Vector2 fontPos = new Vector2(graphicsDevice.Viewport.Width / 2,

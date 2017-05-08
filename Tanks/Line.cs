@@ -17,6 +17,9 @@ using Path = System.Collections.Generic.List<ClipperLib.IntPoint>;
 
 namespace Tanks
 {
+	/*
+	 * Every drawn line uses this to function
+	 */
 	class Line
 	{
 		private List<Vector2> points;
@@ -92,6 +95,7 @@ namespace Tanks
 			spriteBatch.End();
 		}
 
+		//TODO: Ensure deprecation before removing.
 		public Vector2? getCoverIntersectionPoint(List<Cover> coverList)
 		{
 

@@ -14,6 +14,9 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Tanks
 {
+	/*
+	 * Used to limit tank movement per turn
+	 */
 	class InkMonitor
 	{
 		private int maxInk = 500;

@@ -15,6 +15,10 @@ using ClipperLib;
 
 namespace Tanks
 {
+	/*
+	 * Utility class that creates a circle of points.
+	 * Used in explosions and detecting tank hits.
+	 */
 	class Circle
 	{
 		//http://stackoverflow.com/a/5301049

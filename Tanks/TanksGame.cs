@@ -13,6 +13,7 @@ using Microsoft.Xna.Framework;
 
 namespace Tanks
 {
+	//TODO: Take code out of game1 and put it in here. Game1 is sort of an internal class we shouldn't be using for what we do.
 	class TanksGame
 	{
 

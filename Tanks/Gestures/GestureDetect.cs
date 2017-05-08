@@ -18,6 +18,7 @@ namespace Tanks
 	{
 		/*
 		 * Ref: http://stackoverflow.com/a/15155929
+		 * Class that turns iffy MonoGame touch library into more reliable "custom" touch detection
 		 */
 
 		private int dragIntervalThreshold = 6; //How many ticks to detect a drag
@@ -105,7 +106,7 @@ namespace Tanks
 
 						}
 
-						if (totalDragUpdates > dragIntervalThreshold) //User has spent more than 150ms dragging. Assume user means to Drag and draw accordingly.
+						if (totalDragUpdates > dragIntervalThreshold) //User has spent more than 6 ticks dragging. Assume user means to Drag and draw accordingly.
 						{
 							detectedGs.GestureType = GestureType.FreeDrag;
 							if (firstTimeDrag)
@@ -142,9 +143,8 @@ namespace Tanks
 							detectedGs.GestureType = GestureType.Flick; //No other gesture data available otherwise
 							if (lastDelta != null && lastPosition != null)
 							{
-								detectedGs.Delta = Vector2.Subtract(lastGestures.Last(), lastGestures.First()); //(Vector2)lastDelta;
-								detectedGs.Position = lastGestures.First(); //(Vector2)lastPosition;
-								//detectedGs.detectedGestureList = lastGestures;
+								detectedGs.Delta = Vector2.Subtract(lastGestures.Last(), lastGestures.First());
+								detectedGs.Position = lastGestures.First(); 
 							}
 
 							resetDrag(time);

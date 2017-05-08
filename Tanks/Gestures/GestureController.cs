@@ -40,7 +40,7 @@ namespace Tanks
 			return dist > (minDragDist * minDragDist);
 		}
 
-		//TODO: Given an origin, returns a point safely out of collision.
+		//Given an origin, returns a point safely out of collision. Unreliable. TODO: Make more consistent
 		private Vector2 ensureSafePoint(Vector2 originPoint, Vector2 destinationPoint)
 		{
 			CoverCollision coverCollision = new CoverCollision();
@@ -86,8 +86,6 @@ namespace Tanks
 		{
 			if (tank != null)
 			{
-
-
 				switch (tank.getTeam())
 				{
 					case TankTeam.ONE:
@@ -104,7 +102,7 @@ namespace Tanks
 		{
 			DetectedGesture detectedGesture = gestureDetect.getGesture(timeStep); //May be null before game space is fully initialized
 
-			if (detectedGesture.GestureType != GestureType.None)
+			if (detectedGesture.GestureType != GestureType.None) //Ensure some form of gesture takes place
 			{
 				bool pushSuccess = buttonController.pushButton(detectedGesture.Position);
 				if (!pushSuccess) //Ensure button presses are not picked up by gesture detection
@@ -124,12 +122,12 @@ namespace Tanks
 
 					switch (detectedGesture.GestureType)
 					{
-						case GestureType.Tap:
+						case GestureType.Tap: 
 							if (!gameStateModel.coverDrawingMode)
 							{
 								if (tanksModel.lastSelectedTank != null)
 								{
-									tanksModel.lastSelectedTank.saveAndClearWaypoints();
+									tanksModel.lastSelectedTank.saveAndClearWaypoints(); //Stop moving tanks if we tap. TODO: Make Button tap specific! Bug!
 								}
 								tanksModel.tankFollowLine = new Line(); //Clear the line on tap}
 							}

@@ -15,5 +15,6 @@ namespace Tanks
 	class OptionsModel
 	{
 		//User preferences go here
+		//TODO: Come up with a menu to put preferences in
 	}
 }

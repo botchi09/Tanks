@@ -15,10 +15,7 @@ namespace Tanks
 	class GameStateModel
 	{
 		//TODO: Information about game state.
-		/*Cover drawing should actually be here, not TanksModel
-		 * Not for user configured options.
-		 * Game phases decided here too.
-		 */
+		
 		public bool coverDrawingMode { get; set; }
 
 		public TankTeam currentTeamActive;
@@ -27,7 +24,7 @@ namespace Tanks
 
 		public TankTeam? victor;
 
-		public float gameStateTimer;
+		public float gameStateTimer; //TODO: Consider whether a timer should be a thing?
 
 		public GameStateModel()
 		{
